@@ -1,0 +1,10 @@
+/* src/game_of_life/index.css */
+body {
+  overflow: hidden;
+  margin: 0px;
+  touch-action: none;
+}
+#canvas {
+  background-color: white;
+}
+/*# sourceMappingURL=index.css.map */
