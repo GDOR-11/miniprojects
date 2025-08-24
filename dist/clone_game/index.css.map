@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/clone_game/index.css"],
+  "sourcesContent": ["body {\n    overflow: hidden;\n    margin: 0px;\n    touch-action: none;\n}\n\n#canvas {\n    background-color: white;\n}\n"],
+  "mappings": ";AAAA;AACI,YAAU;AACV,UAAQ;AACR,gBAAc;AAClB;AAEA,CAAC;AACG,oBAAkB;AACtB;",
+  "names": []
+}

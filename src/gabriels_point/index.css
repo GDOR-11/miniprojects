@@ -1,0 +1,13 @@
+body {
+    overflow: hidden;
+    margin: 0px;
+    touch-action: none;
+    background-color: black;
+}
+
+#slowness {
+    position: absolute;
+    top: 20px;
+    width: calc(100% - 50px);
+    left: 25px;
+}

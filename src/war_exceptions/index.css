@@ -1,0 +1,6 @@
+body {
+    overflow: hidden;
+    margin: 0px;
+    touch-action: none;
+    background-color: black;
+}

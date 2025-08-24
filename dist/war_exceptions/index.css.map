@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/war_exceptions/index.css"],
+  "sourcesContent": ["body {\n    overflow: hidden;\n    margin: 0px;\n    touch-action: none;\n    background-color: black;\n}\n"],
+  "mappings": ";AAAA;AACI,YAAU;AACV,UAAQ;AACR,gBAAc;AACd,oBAAkB;AACtB;",
+  "names": []
+}
