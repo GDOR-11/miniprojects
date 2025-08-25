@@ -757,25 +757,29 @@
     for (let [x, set3] of grid) {
       for (let y of set3) {
         for (let i = -1; i <= 1; i++) {
-          let col1 = next_grid.get(x + i);
-          if (col1 === void 0) {
-            col1 = /* @__PURE__ */ new Set();
-            next_grid.set(x + i, col1);
+          let col = next_grid.get(x + i);
+          if (col === void 0) {
+            col = /* @__PURE__ */ new Set();
+            next_grid.set(x + i, col);
           }
-          for (let j = -1; j <= 1; j++) {
-            let neighbors = 0;
-            for (let ii = -1; ii <= 1; ii++) {
-              let col2 = grid.get(x + i + ii);
-              if (col2 === void 0) continue;
-              for (let jj = -1; jj <= 1; jj++) {
-                if (ii === jj && jj === 0) continue;
-                neighbors += col2.has(y + j + jj) ? 1 : 0;
-              }
-            }
-            if (neighbors === 3) col1.add(y + j);
-            if (grid.get(x + i)?.has?.(y + j) && neighbors === 2) col1.add(y + j);
-          }
+          col.add(y - 1);
+          col.add(y);
+          col.add(y + 1);
         }
+      }
+    }
+    for (let [x, set3] of next_grid) {
+      for (let y of set3) {
+        let neighbors = 0;
+        for (let i = -1; i <= 1; i++) {
+          let col = grid.get(x + i);
+          if (col === void 0) continue;
+          neighbors += col.has(y - 1) ? 1 : 0;
+          neighbors += col.has(y) ? 1 : 0;
+          neighbors += col.has(y + 1) ? 1 : 0;
+        }
+        if (neighbors < 3 || neighbors > 4) next_grid.get(x).delete(y);
+        if (neighbors === 4 && !grid.get(x)?.has?.(y)) next_grid.get(x).delete(y);
       }
     }
     grid = next_grid;
@@ -806,7 +810,16 @@
       ctx.stroke();
     }
   }
-  space.addListener(render);
+  var running = false;
+  function frame() {
+    if (running) {
+      let now = performance.now();
+      while (performance.now() - now < 16) step();
+    }
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
   function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -817,10 +830,7 @@
   resize();
   window.addEventListener("click", (event) => {
     if (event.x < 100 && event.y < 100) {
-      setInterval(() => {
-        step();
-        render();
-      }, 10);
+      running = !running;
       return;
     }
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
