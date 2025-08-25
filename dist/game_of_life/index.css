@@ -7,4 +7,21 @@ body {
 #canvas {
   background-color: white;
 }
+.control-panel {
+  background-color: #000000c0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding: 10px 0px;
+  width: 100vw;
+  box-sizing: border-box;
+}
+.control-panel-row {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
 /*# sourceMappingURL=index.css.map */

@@ -811,12 +811,22 @@
     }
   }
   var running = false;
+  var speed = 1;
+  var last_step = performance.now();
+  var last_frame = performance.now();
   function frame() {
     if (running) {
       let now = performance.now();
-      while (performance.now() - now < 16) step();
+      if (speed > 1e3 / (now - last_frame)) {
+        for (let i = 0; performance.now() - now < 17 && i < speed * (now - last_frame) / 1e3; i++) step();
+        last_step = now;
+      } else if (speed > 1e3 / (now - last_step)) {
+        step();
+        last_step = now;
+      }
     }
     render();
+    last_frame = performance.now();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -828,11 +838,10 @@
   }
   window.addEventListener("resize", resize);
   resize();
-  window.addEventListener("click", (event) => {
-    if (event.x < 100 && event.y < 100) {
-      running = !running;
-      return;
-    }
+  document.getElementById("start").addEventListener("click", () => running = !running);
+  document.getElementById("step").addEventListener("click", step);
+  document.getElementById("speed").addEventListener("input", (e) => speed = 2 ** Number(document.getElementById("speed").value));
+  canvas.addEventListener("click", (event) => {
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
     [i, j] = [Math.round(i), Math.round(j)];
     let col = grid.get(i);
