@@ -1,5 +1,7 @@
 import "./index.css";
 import RenderSpace from "movable-render-space";
+import { grid, step } from "./simulator";
+import { load } from "./pattern_loader";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const space = new RenderSpace(canvas);
@@ -9,44 +11,9 @@ space.config.rotating = false;
 space.zoomInto([0, 0], 100);
 space.translate([window.innerWidth / 2, window.innerHeight / 2]);
 
-let grid = new Map<number, Set<number>>();
-
-function step() {
-    let next_grid = new Map<number, Set<number>>();
-
-    // all cells that will potentially be alive next iteration
-    for (let [x, set] of grid) {
-        for (let y of set) {
-            for (let i = -1; i <= 1; i++) {
-                let col = next_grid.get(x + i);
-                if (col === undefined) {
-                    col = new Set<number>();
-                    next_grid.set(x + i, col);
-                }
-                col.add(y - 1);
-                col.add(y);
-                col.add(y + 1);
-            }
-        }
-    }
-
-    // prune down all of the ones that aren't actually alive
-    for (let [x, set] of next_grid) {
-        for (let y of set) {
-            let neighbors = 0;
-            for (let i = -1; i <= 1; i++) {
-                let col = grid.get(x + i);
-                if (col === undefined) continue;
-                neighbors += col.has(y - 1) ? 1 : 0;
-                neighbors += col.has(y) ? 1 : 0;
-                neighbors += col.has(y + 1) ? 1 : 0;
-            }
-            if (neighbors < 3 || neighbors > 4) next_grid.get(x).delete(y);
-            if (neighbors === 4 && !grid.get(x)?.has?.(y)) next_grid.get(x).delete(y);
-        }
-    }
-
-    grid = next_grid;
+export function view_center(): [number, number] {
+    let center = space.screenToRenderSpace([window.innerWidth / 2, window.innerHeight / 2]);
+    return [Math.round(center[0]), Math.round(center[1])];
 }
 
 function render() {
@@ -111,8 +78,9 @@ window.addEventListener("resize", resize);
 resize();
 
 document.getElementById("start").addEventListener("click", () => running = !running);
-document.getElementById("step").addEventListener("click", step);
-document.getElementById("speed").addEventListener("input", e => speed = 2 ** Number((document.getElementById("speed") as HTMLInputElement).value));
+document.getElementById("step").addEventListener("click", () => step());
+document.getElementById("clear").addEventListener("click", () => grid.clear());
+document.getElementById("speed").addEventListener("input", () => speed = 2 ** Number((document.getElementById("speed") as HTMLInputElement).value));
 
 canvas.addEventListener("click", event => {
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
@@ -130,4 +98,14 @@ canvas.addEventListener("click", event => {
     }
 
     render();
+});
+
+document.getElementById("file").addEventListener("change", async () => {
+    const input = document.getElementById("file") as HTMLInputElement;
+    const file = input.files[0];
+    if (file === undefined) return;
+    const data = await file.text();
+    const success = load(data, file.name.split(".").at(-1));
+    if (!success) alert("unsupported file format");
+    input.value = "";
 });

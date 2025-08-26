@@ -12,6 +12,9 @@
             <div class="control-panel-row">
                 <button id="start">start/stop</button>
                 <button id="step">step</button>
+                <button id="clear">clear</button>
+                <button onclick="document.getElementById('file').click();">load file</button>
+                <input id="file" type="file" accept=".rle,.mc" hidden>
             </div>
             <div class="control-panel-row">
                 <input id="speed" type="range" min=0 max=10 value=0 step=0.1 style="width: 80%;">

@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/game_of_life/index.css"],
-  "sourcesContent": ["body {\n    overflow: hidden;\n    margin: 0px;\n    touch-action: none;\n}\n\n#canvas {\n    background-color: white;\n}\n\n.control-panel {\n    background-color: #000000c0;\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n    position: absolute;\n    top: 0px;\n    left: 0px;\n    padding: 10px 0px;\n    width: 100vw;\n    box-sizing: border-box;\n}\n\n.control-panel-row {\n    display: flex;\n    justify-content: space-evenly;\n    width: 100%;\n}\n"],
-  "mappings": ";AAAA;AACI,YAAU;AACV,UAAQ;AACR,gBAAc;AAClB;AAEA,CAAC;AACG,oBAAkB;AACtB;AAEA,CAAC;AACG,oBAAkB;AAClB,WAAS;AACT,kBAAgB;AAChB,OAAK;AACL,YAAU;AACV,OAAK;AACL,QAAM;AACN,WAAS,KAAK;AACd,SAAO;AACP,cAAY;AAChB;AAEA,CAAC;AACG,WAAS;AACT,mBAAiB;AACjB,SAAO;AACX;",
+  "sourcesContent": ["body {\n    overflow: hidden;\n    margin: 0px;\n    touch-action: none;\n}\n\n#canvas {\n    background-color: white;\n}\n\n.control-panel {\n    background-color: #000000c0;\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n    position: absolute;\n    top: 0px;\n    left: 0px;\n    padding: 10px 0px;\n    width: 100vw;\n    box-sizing: border-box;\n}\n.control-panel-row {\n    display: flex;\n    justify-content: space-evenly;\n    width: 100%;\n}\n"],
+  "mappings": ";AAAA;AACI,YAAU;AACV,UAAQ;AACR,gBAAc;AAClB;AAEA,CAAC;AACG,oBAAkB;AACtB;AAEA,CAAC;AACG,oBAAkB;AAClB,WAAS;AACT,kBAAgB;AAChB,OAAK;AACL,YAAU;AACV,OAAK;AACL,QAAM;AACN,WAAS,KAAK;AACd,SAAO;AACP,cAAY;AAChB;AACA,CAAC;AACG,WAAS;AACT,mBAAiB;AACjB,SAAO;AACX;",
   "names": []
 }
