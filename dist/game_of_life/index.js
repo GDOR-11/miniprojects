@@ -744,9 +744,36 @@
     }, { passive: false });
   }
 
-  // src/game_of_life/simulator.ts
+  // src/game_of_life/simulators/sparse_encoding.ts
   var grid = /* @__PURE__ */ new Map();
-  function step() {
+  function getCellState(x, y) {
+    return grid.get(x)?.has?.(y) ?? false;
+  }
+  function setCellState(x, y, alive) {
+    let col = grid.get(x);
+    if (col === void 0) {
+      col = /* @__PURE__ */ new Set();
+      grid.set(x, col);
+    }
+    if (alive) col.add(y);
+    else col.delete(y);
+  }
+  function clearGrid() {
+    grid.clear();
+  }
+  function forEachAliveCell(f) {
+    for (let [x, set3] of grid) {
+      for (let y of set3) {
+        f(x, y);
+      }
+    }
+  }
+  function step(generations) {
+    for (let i = 0; i < generations; i++) {
+      single_step();
+    }
+  }
+  function single_step() {
     let next_grid = /* @__PURE__ */ new Map();
     for (let [x, set3] of grid) {
       for (let y of set3) {
@@ -792,14 +819,6 @@
         return false;
     }
   }
-  function add_cell(x, y) {
-    let col = grid.get(x);
-    if (col === void 0) {
-      col = /* @__PURE__ */ new Set();
-      grid.set(x, col);
-    }
-    col.add(y);
-  }
   function load_rle(rle) {
     const lines = rle.split("\n");
     while (lines[0][0] === "#") lines.shift();
@@ -841,7 +860,7 @@
     const offset_y = Math.round(center[1] - height / 2);
     for (let y = 0; y < pattern.length; y++) {
       for (let x = 0; x < pattern[y].length; x++) {
-        if (pattern[y][x]) add_cell(x + offset_x, y + offset_y);
+        setCellState(x + offset_x, y + offset_y, pattern[y][x]);
       }
     }
   }
@@ -859,8 +878,8 @@
         for (let char of node) {
           switch (char) {
             case "*":
-              add_cell(curr_x, curr_y);
             case ".":
+              setCellState(curr_x, curr_y, char === "*");
               curr_x++;
               break;
             case "$":
@@ -898,11 +917,9 @@
     const aabb = space.getScreenAABB();
     space.clearScreen();
     ctx.fillStyle = "#404040";
-    for (let [x, set3] of grid) {
-      for (let y of set3) {
-        ctx.fillRect(x - 0.5, y - 0.5, 1, 1);
-      }
-    }
+    forEachAliveCell((x, y) => {
+      ctx.fillRect(x - 0.5, y - 0.5, 1, 1);
+    });
     const w = 0.05;
     ctx.strokeStyle = "black";
     ctx.lineCap = "square";
@@ -928,10 +945,10 @@
     if (running) {
       let now = performance.now();
       if (speed > 1e3 / (now - last_frame)) {
-        for (let i = 0; performance.now() - now < 17 && i < speed * (now - last_frame) / 1e3; i++) step();
+        for (let i = 0; performance.now() - now < 17 && i < speed * (now - last_frame) / 1e3; i++) step(1);
         last_step = now;
       } else if (speed > 1e3 / (now - last_step)) {
-        step();
+        step(1);
         last_step = now;
       }
     }
@@ -949,22 +966,13 @@
   window.addEventListener("resize", resize);
   resize();
   document.getElementById("start").addEventListener("click", () => running = !running);
-  document.getElementById("step").addEventListener("click", () => step());
-  document.getElementById("clear").addEventListener("click", () => grid.clear());
+  document.getElementById("step").addEventListener("click", () => step(1));
+  document.getElementById("clear").addEventListener("click", () => clearGrid());
   document.getElementById("speed").addEventListener("input", () => speed = 2 ** Number(document.getElementById("speed").value));
   canvas.addEventListener("click", (event) => {
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
     [i, j] = [Math.round(i), Math.round(j)];
-    let col = grid.get(i);
-    if (col === void 0) {
-      col = /* @__PURE__ */ new Set();
-      grid.set(i, col);
-    }
-    if (col.has(j)) {
-      col.delete(j);
-    } else {
-      col.add(j);
-    }
+    setCellState(i, j, !getCellState(i, j));
     render();
   });
   document.getElementById("file").addEventListener("change", async () => {

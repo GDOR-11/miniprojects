@@ -1,6 +1,6 @@
 import "./index.css";
 import RenderSpace from "movable-render-space";
-import { grid, step } from "./simulator";
+import { clearGrid, forEachAliveCell, getCellState, setCellState, step } from "./simulators/sparse_encoding";
 import { load } from "./pattern_loader";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -22,11 +22,9 @@ function render() {
 
     ctx.fillStyle = "#404040";
 
-    for (let [x, set] of grid) {
-        for (let y of set) {
-            ctx.fillRect(x - 0.5, y - 0.5, 1, 1);
-        }
-    }
+    forEachAliveCell((x, y) => {
+        ctx.fillRect(x - 0.5, y - 0.5, 1, 1);
+    });
 
     const w = 0.05; // grid width
     ctx.strokeStyle = "black";
@@ -55,10 +53,10 @@ function frame() {
     if (running) {
         let now = performance.now();
         if (speed > 1000 / (now - last_frame)) {
-            for (let i = 0; performance.now() - now < 17 && i < speed * (now - last_frame) / 1000; i++) step();
+            for (let i = 0; performance.now() - now < 17 && i < speed * (now - last_frame) / 1000; i++) step(1);
             last_step = now;
         } else if (speed > 1000 / (now - last_step)) {
-            step();
+            step(1);
             last_step = now;
         }
     }
@@ -78,25 +76,14 @@ window.addEventListener("resize", resize);
 resize();
 
 document.getElementById("start").addEventListener("click", () => running = !running);
-document.getElementById("step").addEventListener("click", () => step());
-document.getElementById("clear").addEventListener("click", () => grid.clear());
+document.getElementById("step").addEventListener("click", () => step(1));
+document.getElementById("clear").addEventListener("click", () => clearGrid());
 document.getElementById("speed").addEventListener("input", () => speed = 2 ** Number((document.getElementById("speed") as HTMLInputElement).value));
 
 canvas.addEventListener("click", event => {
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
     [i, j] = [Math.round(i), Math.round(j)];
-
-    let col = grid.get(i);
-    if (col === undefined) {
-        col = new Set();
-        grid.set(i, col);
-    }
-    if (col.has(j)) {
-        col.delete(j);
-    } else {
-        col.add(j);
-    }
-
+    setCellState(i, j, !getCellState(i, j));
     render();
 });
 

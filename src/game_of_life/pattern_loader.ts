@@ -1,5 +1,5 @@
 import { view_center } from ".";
-import { grid } from "./simulator";
+import { setCellState } from "./simulators/sparse_encoding";
 
 export function load(data: string, format: string): boolean {
     switch (format) {
@@ -12,15 +12,6 @@ export function load(data: string, format: string): boolean {
         default:
             return false;
     }
-}
-
-function add_cell(x: number, y: number) {
-    let col = grid.get(x);
-    if (col === undefined) {
-        col = new Set<number>();
-        grid.set(x, col);
-    }
-    col.add(y);
 }
 
 function load_rle(rle: string) {
@@ -68,7 +59,7 @@ function load_rle(rle: string) {
 
     for (let y = 0; y < pattern.length; y++) {
         for (let x = 0; x < pattern[y].length; x++) {
-            if (pattern[y][x]) add_cell(x + offset_x, y + offset_y);
+            setCellState(x + offset_x, y + offset_y, pattern[y][x]);
         }
     }
 }
@@ -88,8 +79,8 @@ function load_mc(data: string) {
             for (let char of node) {
                 switch (char) {
                     case "*":
-                        add_cell(curr_x, curr_y);
                     case ".":
+                        setCellState(curr_x, curr_y, char === "*");
                         curr_x++;
                         break;
                     case "$":

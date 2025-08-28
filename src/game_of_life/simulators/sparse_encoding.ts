@@ -1,6 +1,35 @@
-export let grid = new Map<number, Set<number>>();
+let grid = new Map<number, Set<number>>();
 
-export function step() {
+export function getCellState(x: number, y: number): boolean {
+    return grid.get(x)?.has?.(y) ?? false;
+}
+export function setCellState(x: number, y: number, alive: boolean) {
+    let col = grid.get(x);
+    if (col === undefined) {
+        col = new Set<number>();
+        grid.set(x, col);
+    }
+    if (alive) col.add(y); else col.delete(y);
+}
+export function clearGrid() {
+    grid.clear();
+}
+
+export function forEachAliveCell(f: (x: number, y: number) => any) {
+    for (let [x, set] of grid) {
+        for (let y of set) {
+            f(x, y);
+        }
+    }
+}
+
+export function step(generations: number) {
+    for (let i = 0; i < generations; i++) {
+        single_step();
+    }
+}
+
+function single_step() {
     let next_grid = new Map<number, Set<number>>();
 
     // all cells that will potentially be alive next iteration
