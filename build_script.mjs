@@ -1,6 +1,7 @@
 import esbuild from "esbuild";
 import fs from "fs/promises";
 import path from "path";
+import { wasmLoader } from "esbuild-plugin-wasm";
 
 const project = process.argv[2];
 const prod = process.argv[3] === "true";
@@ -19,7 +20,8 @@ let ctx = await esbuild.context({
     minify: prod,
     bundle: true,
     outdir: `dist/${project}`,
-    sourcemap: !prod
+    sourcemap: !prod,
+    plugins: [ wasmLoader() ]
 });
 console.log("build finished!");
 
