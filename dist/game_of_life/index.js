@@ -9,14 +9,12 @@
   var EPSILON = 1e-6;
   var ARRAY_TYPE = typeof Float32Array !== "undefined" ? Float32Array : Array;
   var RANDOM = Math.random;
+  function round(a) {
+    if (a >= 0) return Math.round(a);
+    return a % 0.5 === 0 ? Math.floor(a) : Math.round(a);
+  }
   var degree = Math.PI / 180;
-  if (!Math.hypot) Math.hypot = function() {
-    var y = 0, i = arguments.length;
-    while (i--) {
-      y += arguments[i] * arguments[i];
-    }
-    return Math.sqrt(y);
-  };
+  var radian = 180 / Math.PI;
 
   // node_modules/gl-matrix/esm/mat2d.js
   var mat2d_exports = {};
@@ -202,7 +200,7 @@
     return "mat2d(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ")";
   }
   function frob(a) {
-    return Math.hypot(a[0], a[1], a[2], a[3], a[4], a[5], 1);
+    return Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2] + a[3] * a[3] + a[4] * a[4] + a[5] * a[5] + 1);
   }
   function add(out, a, b) {
     out[0] = a[0] + b[0];
@@ -283,10 +281,11 @@
     normalize: () => normalize,
     random: () => random,
     rotate: () => rotate2,
-    round: () => round,
+    round: () => round2,
     scale: () => scale2,
     scaleAndAdd: () => scaleAndAdd,
     set: () => set2,
+    signedAngle: () => signedAngle,
     sqrDist: () => sqrDist,
     sqrLen: () => sqrLen,
     squaredDistance: () => squaredDistance,
@@ -370,9 +369,9 @@
     out[1] = Math.max(a[1], b[1]);
     return out;
   }
-  function round(out, a) {
-    out[0] = Math.round(a[0]);
-    out[1] = Math.round(a[1]);
+  function round2(out, a) {
+    out[0] = round(a[0]);
+    out[1] = round(a[1]);
     return out;
   }
   function scale2(out, a, b) {
@@ -387,7 +386,7 @@
   }
   function distance(a, b) {
     var x = b[0] - a[0], y = b[1] - a[1];
-    return Math.hypot(x, y);
+    return Math.sqrt(x * x + y * y);
   }
   function squaredDistance(a, b) {
     var x = b[0] - a[0], y = b[1] - a[1];
@@ -395,7 +394,7 @@
   }
   function length(a) {
     var x = a[0], y = a[1];
-    return Math.hypot(x, y);
+    return Math.sqrt(x * x + y * y);
   }
   function squaredLength(a) {
     var x = a[0], y = a[1];
@@ -437,7 +436,7 @@
     return out;
   }
   function random(out, scale3) {
-    scale3 = scale3 || 1;
+    scale3 = scale3 === void 0 ? 1 : scale3;
     var r = RANDOM() * 2 * Math.PI;
     out[0] = Math.cos(r) * scale3;
     out[1] = Math.sin(r) * scale3;
@@ -475,8 +474,12 @@
     return out;
   }
   function angle(a, b) {
-    var x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1], mag = Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2), cosine = mag && (x1 * x2 + y1 * y2) / mag;
-    return Math.acos(Math.min(Math.max(cosine, -1), 1));
+    var ax = a[0], ay = a[1], bx = b[0], by = b[1];
+    return Math.abs(Math.atan2(ay * bx - ax * by, ax * bx + ay * by));
+  }
+  function signedAngle(a, b) {
+    var ax = a[0], ay = a[1], bx = b[0], by = b[1];
+    return Math.atan2(ax * by - ay * bx, ax * bx + ay * by);
   }
   function zero(out) {
     out[0] = 0;
@@ -501,7 +504,7 @@
   var dist = distance;
   var sqrDist = squaredDistance;
   var sqrLen = squaredLength;
-  var forEach = function() {
+  var forEach = (function() {
     var vec = create2();
     return function(a, stride, offset, count, fn, arg) {
       var i, l;
@@ -525,10 +528,10 @@
       }
       return a;
     };
-  }();
+  })();
 
   // node_modules/movable-render-space/lib/index.js
-  function signedAngle(a, b) {
+  function signedAngle2(a, b) {
     let ax = a[0], ay = a[1], bx = b[0], by = b[1];
     return Math.atan2(ax * by - ay * bx, ax * bx + ay * by);
   }
@@ -728,7 +731,7 @@
             space2.zoomInto(center, vec2_exports.len(diff) / vec2_exports.len(last_diff));
           }
           if (space2.config.rotating) {
-            space2.rotateAround(center, signedAngle(last_diff, diff));
+            space2.rotateAround(center, signedAngle2(last_diff, diff));
           }
           space2.updateTransform();
           break;
@@ -969,7 +972,12 @@
   document.getElementById("step").addEventListener("click", () => step(1));
   document.getElementById("clear").addEventListener("click", () => clearGrid());
   document.getElementById("speed").addEventListener("input", () => speed = 2 ** Number(document.getElementById("speed").value));
-  canvas.addEventListener("click", (event) => {
+  var clickstart = { x: 0, y: 0 };
+  canvas.addEventListener("pointerdown", (event) => {
+    clickstart = { x: event.x, y: event.y };
+  });
+  canvas.addEventListener("pointerup", (event) => {
+    if (Math.hypot(event.x - clickstart.x, event.y - clickstart.y) > 5) return;
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
     [i, j] = [Math.round(i), Math.round(j)];
     setCellState(i, j, !getCellState(i, j));
