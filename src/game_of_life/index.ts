@@ -80,7 +80,12 @@ document.getElementById("step").addEventListener("click", () => step(1));
 document.getElementById("clear").addEventListener("click", () => clearGrid());
 document.getElementById("speed").addEventListener("input", () => speed = 2 ** Number((document.getElementById("speed") as HTMLInputElement).value));
 
-canvas.addEventListener("click", event => {
+let clickstart = { x: 0, y: 0 };
+canvas.addEventListener("pointerdown", event => {
+    clickstart = { x: event.x, y: event.y };
+});
+canvas.addEventListener("pointerup", event => {
+    if (Math.hypot(event.x - clickstart.x, event.y - clickstart.y) < 5) return;
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
     [i, j] = [Math.round(i), Math.round(j)];
     setCellState(i, j, !getCellState(i, j));
