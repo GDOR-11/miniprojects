@@ -85,7 +85,7 @@ canvas.addEventListener("pointerdown", event => {
     clickstart = { x: event.x, y: event.y };
 });
 canvas.addEventListener("pointerup", event => {
-    if (Math.hypot(event.x - clickstart.x, event.y - clickstart.y) < 5) return;
+    if (Math.hypot(event.x - clickstart.x, event.y - clickstart.y) > 5) return;
     let [i, j] = space.screenToRenderSpace([event.x, event.y]);
     [i, j] = [Math.round(i), Math.round(j)];
     setCellState(i, j, !getCellState(i, j));
