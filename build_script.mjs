@@ -4,7 +4,7 @@ import path from "path";
 import { wasmLoader } from "esbuild-plugin-wasm";
 
 const project = process.argv[2];
-const prod = process.argv[3] === "true";
+const debug = process.argv[3] === "true";
 
 if (project === undefined) throw "please specify project";
 
@@ -17,10 +17,11 @@ const html_pages = (await fs.readdir(`./src/${project}`, { withFileTypes: true, 
 console.log("building...");
 let ctx = await esbuild.context({
     entryPoints: [`./src/${project}/index.js`],
-    minify: prod,
+    minify: !debug,
     bundle: true,
     outdir: `dist/${project}`,
-    sourcemap: !prod,
+    sourcemap: debug,
+    format: "esm",
     plugins: [ wasmLoader() ]
 });
 console.log("build finished!");

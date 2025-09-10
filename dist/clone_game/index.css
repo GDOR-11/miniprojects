@@ -1,10 +1,1 @@
-/* src/clone_game/index.css */
-body {
-  overflow: hidden;
-  margin: 0px;
-  touch-action: none;
-}
-#canvas {
-  background-color: white;
-}
-/*# sourceMappingURL=index.css.map */
+body{overflow:hidden;margin:0;touch-action:none}#canvas{background-color:#fff}

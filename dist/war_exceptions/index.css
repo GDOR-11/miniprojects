@@ -1,8 +1,1 @@
-/* src/war_exceptions/index.css */
-body {
-  overflow: hidden;
-  margin: 0px;
-  touch-action: none;
-  background-color: black;
-}
-/*# sourceMappingURL=index.css.map */
+body{overflow:hidden;margin:0;touch-action:none;background-color:#000}

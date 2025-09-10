@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/gabriels_point/index.css"],
-  "sourcesContent": ["body {\n    overflow: hidden;\n    margin: 0px;\n    touch-action: none;\n    background-color: black;\n}\n\n#slowness {\n    position: absolute;\n    top: 20px;\n    width: calc(100% - 50px);\n    left: 25px;\n}\n"],
-  "mappings": ";AAAA;AACI,YAAU;AACV,UAAQ;AACR,gBAAc;AACd,oBAAkB;AACtB;AAEA,CAAC;AACG,YAAU;AACV,OAAK;AACL,SAAO,KAAK,KAAK,EAAE;AACnB,QAAM;AACV;",
-  "names": []
-}
