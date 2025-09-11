@@ -22,6 +22,9 @@ let ctx = await esbuild.context({
     outdir: `dist/${project}`,
     sourcemap: debug,
     format: "esm",
+    loader: {
+        ".png": "dataurl"
+    },
     plugins: [ wasmLoader() ]
 });
 console.log("build finished!");
