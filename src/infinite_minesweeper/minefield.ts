@@ -35,18 +35,18 @@ export default class Minefield {
         return count;
     }
 
-    getOuterBorderTiles(): Vector[] {
-        let queue = (() => {
-            let pos = new Vector(0, this.a.y);
-            while (this.getTile(pos).state !== TileState.Revealed) pos = new Vector(0, pos.y + 1);
-            return [pos];
-        })();
-        let tiles = queue.slice();
-        let is_border_tile = (pos: Vector) => neighborhood(pos).find(neighbor => this.getTileState(neighbor) === TileState.Unknown) !== undefined;
-        while (queue.length > 0) {
+    // getOuterBorderTiles(): Vector[] {
+        // let queue = (() => {
+            // let pos = new Vector(0, this.a.y);
+            // while (this.getTile(pos).state !== TileState.Revealed) pos = new Vector(0, pos.y + 1);
+            // return [pos];
+        // })();
+        // let tiles = queue.slice();
+        // let is_border_tile = (pos: Vector) => neighborhood(pos).find(neighbor => this.getTileState(neighbor) === TileState.Unknown) !== undefined;
+        // while (queue.length > 0) {
             
-        }
-    }
+        // }
+    // }
 
     expandField(left: number, right: number, top: number, bottom: number) {
         this.a = this.a.subtract(new Vector(left, top));

@@ -110,18 +110,16 @@ window.onpointerup = event => {
     delete pointers[event.pointerId];
 };
 
-(async () => {
-    while (true) {
-        minefield = new Minefield();
-        let last_update = Date.now();
-        await trivialSolver(minefield, async () => {
-            if (Date.now() - last_update > 100) {
-                render();
-                await new Promise(r => setTimeout(r, 1));
-                last_update = Date.now();
-            }
-        });
-        render();
-        await new Promise(r => setTimeout(r, 1));
-    }
-})();
+while (true) {
+    minefield = new Minefield();
+    let last_update = performance.now();
+    await trivialSolver(minefield, async () => {
+        if (performance.now() - last_update > 100) {
+            render();
+            await new Promise(r => setTimeout(r, 1));
+            last_update = performance.now();
+        }
+    });
+    render();
+    await new Promise(r => setTimeout(r, 1));
+}

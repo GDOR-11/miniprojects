@@ -28,7 +28,7 @@ export async function brainlessSolver(minefield: Minefield, on_update: () => Pro
 }
 
 export async function trivialSolver(minefield: Minefield, on_update: () => Promise<any>) {
-    let queue = [];
+    let queue = [new Vector(0, 0)];
     let on_new_information = async (pos: Vector) => {
         for (let neighbor of neighborhood(pos).concat([pos])) {
             if (queue.find(p => p.x === neighbor.x && p.y === neighbor.y) !== undefined) continue;
