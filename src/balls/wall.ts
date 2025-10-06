@@ -15,7 +15,7 @@ export default class Wall {
         let aabb = space.getScreenAABB();
 
         let p, q;
-        if (Number.isFinite(this.A[0] / this.A[1])) {
+        if (Math.abs(this.A[0] / this.A[1]) <= 1) {
             p = vec2.fromValues(
                 aabb[0][0],
                 (this.B - this.A[0] * aabb[0][0]) / this.A[1]
@@ -41,5 +41,15 @@ export default class Wall {
         space.ctx.moveTo(p[0], p[1]);
         space.ctx.lineTo(q[0], q[1]);
         space.ctx.stroke();
+    }
+
+    intersectsAABB(aabb: [vec2, vec2]): boolean {
+        let a = aabb[0][0] * this.A[0] - this.B;
+        let b = aabb[1][0] * this.A[0] - this.B;
+        let c = aabb[0][1] * this.A[1];
+        let d = aabb[1][1] * this.A[1];
+        return !(Math.sign(a + c) === Math.sign(a + d) &&
+            Math.sign(a + d) === Math.sign(b + c) &&
+            Math.sign(b + c) === Math.sign(b + d));
     }
 }

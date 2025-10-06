@@ -3,9 +3,10 @@ import { vec2 } from "gl-matrix";
 import RenderSpace from "movable-render-space";
 import Ball from "./ball";
 import Wall from "./wall";
-import { ball_ball_collision, ball_wall_collision, resolve_ball_ball_collision, resolve_ball_wall_collision } from "./collision_detection";
+import { ball_ball_collision, ball_wall_collision, resolve_ball_ball_collision, resolve_ball_wall_collision } from "./collision_handling";
+import Color from "colorjs.io";
 
-export const G = vec2.fromValues(0, 20);
+export const G = vec2.fromValues(0, 10);
 export const DELTA = 1e-6;
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -29,12 +30,13 @@ space.updateTransform();
 
 const balls: Ball[] = [];
 
-for (let x = -10; x <= 10; x += 4) {
-    for (let y = -20; y <= 20; y += 4) {
-        balls.push(new Ball(1, vec2.fromValues(x, y), vec2.fromValues(0, 0), 1, `rgb(${255 * Math.random()},${255 * Math.random()},${255 * Math.random()})`));
+for (let x = -16; x <= 16; x += 4) {
+    for (let y = -30; y <= 30; y += 4) {
+        let color = new Color(`oklch(${0.5 + 0.5 * Math.random()}, ${0.5 * Math.random()}, ${360 * Math.random()})`).toString({ format: "rgb" });
+        balls.push(new Ball(1, vec2.fromValues(x, y), vec2.fromValues(0, 0), 1, color));
     }
 }
-balls[0].pos[0] += 1e-6;
+balls[64].pos[0] = 1e-42;
 
 const walls: Wall[] = [
     new Wall(vec2.fromValues(0, 1), 0.5 * window.innerHeight / space.transform.zoom),
@@ -47,8 +49,11 @@ function step(dt: number) {
     let collision_time = Infinity;
     let collision_bodies: [Ball, Ball | Wall] | null = null;
 
+    let AABBs = balls.map(ball => ball.getAABB(dt));
     for (let i = 0; i < balls.length; i++) {
         for (let j = i + 1; j < balls.length; j++) {
+            if (AABBs[i][0][0] > AABBs[j][1][0] || AABBs[i][1][0] < AABBs[j][0][0]) continue;
+            if (AABBs[i][0][1] > AABBs[j][1][1] || AABBs[i][1][1] < AABBs[j][0][1]) continue;
             let coll = ball_ball_collision(balls[i], balls[j]);
             if (coll < collision_time) {
                 collision_bodies = [balls[i], balls[j]];
@@ -58,6 +63,7 @@ function step(dt: number) {
     }
     for (let i = 0; i < balls.length; i++) {
         for (let j = 0; j < walls.length; j++) {
+            if (!walls[j].intersectsAABB(AABBs[i])) continue;
             let coll = ball_wall_collision(balls[i], walls[j]);
             if (coll < collision_time) {
                 collision_bodies = [balls[i], walls[j]];

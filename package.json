@@ -16,6 +16,7 @@
     "dependencies": {
         "@craftamap/esbuild-plugin-html": "^0.8.0",
         "@esbuilder/html": "^0.0.6",
+        "colorjs.io": "^0.5.2",
         "decimal.js": "^10.5.0",
         "esbuild": "^0.25.1",
         "mathjs": "^14.6.0",

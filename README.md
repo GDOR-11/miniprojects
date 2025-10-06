@@ -7,7 +7,7 @@ The projects are ordered below by how proud I am of each one of them, from highe
 Pretty self descriptive. It uses sparse encoding (planning to implement HashLife when I'm not lazy). It supports importing `.rle` and `.mc` files.
 
 ### [balls](https://gdor-11.github.io/miniprojects/dist/balls)
-A "physics engine" that only supports dynamic balls and static infinite walls colliding elastically with each other. The only supported force is gravity, and the performance is terrible. Perhaps the single upside is that it uses continuous collision detection (CCD) instead of discrete collision detection (DCD)
+A "physics engine" that only supports dynamic balls and static infinite walls colliding elastically with each other. The only supported force is gravity, and the performance is terrible. Perhaps the single upside is that it uses continuous collision detection (CCD) instead of discrete collision detection (DCD). In the starting configuration, one of the balls has been nudged by 1e-42 units to the right, causing the entire thing to quickly collapse into chaos.
 
 ### [infinite minesweeper](https://gdor-11.github.io/miniprojects/dist/infinite_minesweeper)
 I made this to get an estimative at the answer to [this question](https://math.stackexchange.com/q/5061585/874213)
