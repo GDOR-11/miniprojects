@@ -2,6 +2,7 @@ import esbuild from "esbuild";
 import fs from "fs/promises";
 import path from "path";
 import { wasmLoader } from "esbuild-plugin-wasm";
+import { glsl } from "esbuild-plugin-glsl";
 
 const project = process.argv[2];
 const debug = process.argv[3] === "true";
@@ -25,7 +26,10 @@ let ctx = await esbuild.context({
     loader: {
         ".png": "dataurl"
     },
-    plugins: [ wasmLoader() ]
+    plugins: [
+        wasmLoader(),
+        glsl({ minify: !debug })
+    ]
 });
 console.log("build finished!");
 

@@ -10,15 +10,14 @@
         "start": "node build_script.mjs"
     },
     "devDependencies": {
+        "esbuild": "^0.25.11",
+        "esbuild-plugin-glsl": "^1.4.1",
         "esbuild-plugin-wasm": "^1.1.0",
         "typescript": "^5.7.3"
     },
     "dependencies": {
-        "@craftamap/esbuild-plugin-html": "^0.8.0",
-        "@esbuilder/html": "^0.0.6",
         "colorjs.io": "^0.5.2",
         "decimal.js": "^10.5.0",
-        "esbuild": "^0.25.1",
         "mathjs": "^14.6.0",
         "movable-render-space": "^2.2.0",
         "vecti": "^3.1.0"
