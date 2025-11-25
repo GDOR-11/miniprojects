@@ -10,6 +10,7 @@ canvas {
     width: 100vw;
     height: 100vh;
     touch-action: none;
+    z-index: 0;
 }
 
 #info {
@@ -25,6 +26,7 @@ canvas {
     box-sizing: border-box;
     overflow: auto;
     scrollbar-color: #b0b0b0 transparent;
+    z-index: 1;
 }
 
 #info>p {
