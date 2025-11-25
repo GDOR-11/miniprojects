@@ -1,7 +1,6 @@
 body {
     overflow: hidden;
     margin: 0px;
-    touch-action: none;
 }
 
 canvas {
@@ -10,6 +9,7 @@ canvas {
     left: 0px;
     width: 100vw;
     height: 100vh;
+    touch-action: none;
 }
 
 #info {
