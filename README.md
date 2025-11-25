@@ -13,7 +13,7 @@ A "physics engine" that only supports dynamic balls and static infinite walls co
 I made this to get an estimative at the answer to [this question](https://math.stackexchange.com/q/5061585/874213).
 
 ### [ITA 2026, question 4](https://gdor-11.github.io/miniprojects/dist/ita_2026_q4)
-A simulation of the [4th physics question](https://vestibular.ita.br/provas/fisica_2019_2f.pdf) in the [ITA entrance exam](https://vestibular.ita.br) for 2026. In order to solve the question, you needed to assume that, if a mass `m` orbiting a massive star separated into two smaller masses `m1` and `m2`, the trajectory of the center of mass of `m1` and `m2` would follow the original trajectory of `m`. This simulation is an attempt to show that this is a false assumption.
+A simulation of the [4th physics question](https://vestibular.ita.br/provas/fisica_2026_2f.pdf) in the [ITA entrance exam](https://vestibular.ita.br) for 2026. In order to solve the question, you needed to assume that, if a mass `m` orbiting a massive star separated into two smaller masses `m1` and `m2`, the trajectory of the center of mass of `m1` and `m2` would follow the original trajectory of `m`. This simulation is an attempt to show that this is a false assumption.
 
 ### [clone game](https://gdor-11.github.io/miniprojects/dist/clone_game)
 Inspired by a math problem proposed by a teacher of mine, your objective is to deactivate all initial activated squares. You may deactivate a square S by clicking on it, but the squares to the right and to the top must be deactivated, and will be activated after you click on S. If you're up for a small challenge, prove why it's impossible to get to the objective.
