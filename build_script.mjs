@@ -36,6 +36,6 @@ console.log("build finished!");
 await Promise.all(html_pages.map(dirent => fs.cp(path.join(dirent.parentPath, dirent.name), path.join("dist", path.relative("src", path.join(dirent.parentPath, dirent.name))))));
 
 console.log("serving on: " + (await ctx.serve({
-    port: 3000,
+    port: parseInt(process.argv[4]) || 3000,
     servedir: `./dist`
 })).hosts.join(", "));

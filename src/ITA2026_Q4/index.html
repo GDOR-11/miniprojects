@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./index.css">
+        <script type="module" src="./index.js"></script>
+    </head>
+    <body>
+        <div id="info">
+            <p>
+                Inicialmente, há apenas a massa m (vermelha) orbitando a estrela (amarela).
+            </p>
+            <p>
+                Para controlar onde e como ocorrerá a separação, arraste a base e a ponta da seta cinza.
+                A base da seta representa onde ocorrerá a separação, e a seta em si representa o impulso dado à massa m₁
+                (que é o oposto do impulso dado à massa m₂).
+            </p>
+            <p>
+                Assim que ocorrer a separação, a massa m se separará nas massas m₁ (verde) e m₂ (azul).
+                O centro de massa do sistema m₁-m₂ e sua trajetória estão em preto.
+            </p>
+            <p>
+                Note que, mesmo que por um breve instante o centro de massa continue aproximadamente na trajetória original da massa m,
+                em pouco tempo as duas trajetórias divergem de maneira significativa.
+            </p>
+            <p>
+                Caso queira recomeçar a simulação, reinicie a página.
+            </p>
+            <br><br>
+            <p>
+                Essa simulação utiliza o método RK4 com dt = 0.1ms para calcular os o movimento dos corpos.
+                Apesar de não ser evidência direta que o centro de massa não segue a trajetória original da massa m,
+                uma vez que, teoricamente, a divergência pode estar acontecendo por conta de erros numéricos,
+                o fato de que a trajetória do centro de massa não parece se comportar como uma elipse nem mesmo localmente
+                sugere que a divergência realmente não ocorre por erros numéricos.
+            </p>
+        </div>
+        <canvas id="trajectory-canvas"></canvas>
+        <canvas id="canvas"></canvas>
+    </body>
+</html>
