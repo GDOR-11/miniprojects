@@ -38,9 +38,9 @@ void sphereIntersection(inout Collision current, Ray ray, Sphere sphere) {
     current.material = sphere.material;
 }
 Collision sceneIntersection(Ray ray) {
-    Sphere sphere1 = Sphere(vec3(0.0, -1.0, 5.0), 1.0, Material(vec3(1.0, 0.0, 0.0), vec3(0.0)));
-    Sphere sphere2 = Sphere(vec3(0.0, 1.0, 5.0), 1.0, Material(vec3(1.0, 1.0, 0.0), vec3(0.0)));
-    Sphere sphere3 = Sphere(vec3(5.0, 5.0, 0.0), 1.0, Material(vec3(0.0, 0.0, 0.0), vec3(1.0)));
+    Sphere sphere1 = Sphere(vec3(0.0, -1.0, 10.0), 1.0, Material(vec3(1.0, 0.0, 0.0), vec3(0.0)));
+    Sphere sphere2 = Sphere(vec3(0.0, 1.0, 10.0), 1.0, Material(vec3(1.0, 1.0, 0.0), vec3(0.0)));
+    Sphere sphere3 = Sphere(vec3(2.0, 3.0, 8.0), 1.0, Material(vec3(0.0, 0.0, 0.0), vec3(1.0)));
 
     Collision collision;
     collision.distance = -1.0;
@@ -79,19 +79,20 @@ out vec4 outColor;
 void main() {
     vec4 origin = u_viewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
     vec4 direction = u_viewMatrix * vec4(normalize(v_pixelLocation), 0.0);
-    Ray ray = Ray(origin.xyz, direction.xyz);
 
-    vec3 seed = 100.0 * v_pixelLocation + vec3(5184.0 * u_time);
+    vec3 seed = 100.0 * v_pixelLocation + vec3(5184.0 * sin(u_time));
 
     vec3 color = vec3(0.0);
-    for (int i = 0; i < 1; i++) {
-        vec3 contribution = vec3(1.0);
+    for (int i = 0; i < 5; i++) {
+        vec3 contribution = vec3(0.2);
+
+        Ray ray = Ray(origin.xyz, direction.xyz);
         for (int j = 0; j < 3; j++) {
             Collision collision = sceneIntersection(ray);
             vec3 hitPoint = ray.origin + ray.direction * collision.distance + collision.normal * 0.001;
             if (collision.distance < 0.0) break;
 
-            color += contribution * collision.material.emissivity * dot(collision.normal, -ray.direction);
+            color += contribution * collision.material.emissivity;
             contribution *= collision.material.albedo;
             if (contribution == vec3(0.0)) break;
 
@@ -100,6 +101,7 @@ void main() {
             if (dot(ray.direction, collision.normal) < 0.0) {
                 ray.direction = -ray.direction;
             }
+            contribution *= dot(ray.direction, collision.normal);
         }
     }
     outColor = vec4(colorCorrection(color.r), colorCorrection(color.g), colorCorrection(color.b), 1.0);
