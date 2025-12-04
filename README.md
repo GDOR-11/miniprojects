@@ -9,6 +9,9 @@ Pretty self descriptive. It uses sparse encoding (planning to implement HashLife
 ### [balls](https://gdor-11.github.io/miniprojects/dist/balls)
 A "physics engine" that only supports dynamic balls and static infinite walls colliding elastically with each other. The only supported force is gravity, and the performance is terrible. Perhaps the single upside is that it uses continuous collision detection (CCD) instead of discrete collision detection (DCD). In the starting configuration, one of the balls has been nudged by 1e-42 units to the right, causing the entire thing to quickly collapse into chaos.
 
+### [raytracing](https://gdor-11.github.io/miniprojects/dist/raytracing)
+A very basic stochastic raytracer which only supports spheres.
+
 ### [infinite minesweeper](https://gdor-11.github.io/miniprojects/dist/infinite_minesweeper)
 I made this to get an estimative at the answer to [this question](https://math.stackexchange.com/q/5061585/874213).
 
