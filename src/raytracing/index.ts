@@ -11,17 +11,14 @@ function throw_error(message: string) {
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const gl = canvas.getContext("webgl2");
 if (!gl) throw_error("webgl2 is not supported");
+if (!gl.getExtension("EXT_color_buffer_float")) throw_error("EXT_color_buffer_float is not supported");
 
-function resize() {
-    const dpr = window.devicePixelRatio;
-    const width = Math.round(canvas.clientWidth * dpr);
-    const height = Math.round(canvas.clientHeight * dpr);
-    canvas.width = width;
-    canvas.height = height;
-    gl.viewport(0, 0, width, height);
-}
-resize();
-window.addEventListener("resize", resize);
+const dpr = window.devicePixelRatio;
+const width = Math.round(canvas.clientWidth * dpr);
+const height = Math.round(canvas.clientHeight * dpr);
+canvas.width = width;
+canvas.height = height;
+gl.viewport(0, 0, width, height);
 
 function compile_shader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
     const shader = gl.createShader(type);
@@ -83,10 +80,12 @@ const locations: { attributes: { [attribute: string]: GLint }, uniforms: { [unif
     uniforms: {
         "u_viewMatrix": gl.getUniformLocation(program, "u_viewMatrix"),
         "u_screenSize": gl.getUniformLocation(program, "u_screenSize"),
-        "u_time": gl.getUniformLocation(program, "u_time")
+        "u_frame": gl.getUniformLocation(program, "u_frame"),
+        "u_lastFrame": gl.getUniformLocation(program, "u_lastFrame"),
+        "u_render": gl.getUniformLocation(program, "u_render")
     }
 };
-gl.uniform2f(locations.uniforms["u_screenSize"], 0.5, 0.5 * canvas.height / canvas.width);
+gl.uniform2f(locations.uniforms["u_screenSize"], 0.5 * width / height, 0.5);
 
 const vao = gl.createVertexArray();
 gl.bindVertexArray(vao);
@@ -97,14 +96,42 @@ bind_buffer_to_attribute(gl, locations.attributes["a_position"], {
     type: gl.FLOAT
 });
 
-let start_time = performance.now();
-function render() {
-    const t = (performance.now() - start_time) / 1000;
+const tmp = gl.createTexture();
+gl.activeTexture(gl.TEXTURE1);
+gl.bindTexture(gl.TEXTURE_2D, tmp);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-    gl.uniform1f(locations.uniforms["u_time"], t);
+const last_frame = gl.createTexture();
+gl.activeTexture(gl.TEXTURE0);
+gl.bindTexture(gl.TEXTURE_2D, last_frame);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+const framebuffer = gl.createFramebuffer();
+gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, last_frame, 0);
+
+let frame = 0;
+function render() {
+    gl.uniform1i(locations.uniforms["u_frame"], frame++);
     gl.uniformMatrix4fv(locations.uniforms["u_viewMatrix"], false, mat4.identity(mat4.create()));
 
+    gl.uniform1i(locations.uniforms["u_lastFrame"], 1);
+    gl.uniform1i(locations.uniforms["u_render"], 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    gl.bindTexture(gl.TEXTURE_2D, tmp);
+    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 0, 0, width, height, 0);
+
+    gl.uniform1i(locations.uniforms["u_lastFrame"], 0);
+    gl.uniform1i(locations.uniforms["u_render"], 1);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
     requestAnimationFrame(render);
 }
 requestAnimationFrame(render);
