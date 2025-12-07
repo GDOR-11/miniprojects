@@ -1,5 +1,7 @@
 #version 300 es
 precision highp float;
+precision highp int;
+precision highp sampler2D;
 
 struct Ray {
     vec3 origin;
@@ -90,8 +92,9 @@ out vec4 outColor;
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(textureSize(u_lastFrame, 0));
     if (u_render) {
-        outColor = texture(u_lastFrame, uv) / float(u_frame);
+        outColor = texture(u_lastFrame, uv) / float(u_frame + 1);
         outColor = vec4(colorCorrection(outColor.r), colorCorrection(outColor.g), colorCorrection(outColor.b), 1.0);
+        // outColor.rg = uv;
         return;
     }
     vec4 origin = u_viewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
@@ -127,5 +130,6 @@ void main() {
         outColor = vec4(color, 1.0);
         return;
     }
-    outColor = texture(u_lastFrame, uv) + vec4(color, 1.0);
+    outColor.rgb = texture(u_lastFrame, uv).rgb + color;
+    outColor.a = 1.0;
 }
