@@ -1,5 +1,5 @@
 # miniprojects
-A collection of small projects I wasted my time on. A lot of them use the nom library render-space, which I made specifically for these projecys.
+A collection of small projects I wasted my time on. A lot of them use the npm library render-space, which I made specifically for these projects.
 
 The projects are ordered below by how proud I am of each one of them, from highest to lowest.
 
