@@ -13,27 +13,35 @@ try {
     await fs.rm(`dist/${project}`, { recursive: true });
 } catch (err) { }
 
-const html_pages = (await fs.readdir(`./src/${project}`, { withFileTypes: true, recursive: true })).filter(dirent => dirent.name.endsWith(".html"));
+let ctx;
+try {
+    if ((await fs.stat(`./src/${project}/build_script.mjs`)).isFile()) {
+        ctx = await (await import(`./src/${project}/build_script.mjs`)).default(debug);
+    }
+} catch (err) {
+    console.log(err);
+    const html_pages = (await fs.readdir(`./src/${project}`, { withFileTypes: true, recursive: true })).filter(dirent => dirent.name.endsWith(".html"));
 
-console.log("building...");
-let ctx = await esbuild.context({
-    entryPoints: [`./src/${project}/index.js`],
-    minify: !debug,
-    bundle: true,
-    outdir: `dist/${project}`,
-    sourcemap: debug,
-    format: "esm",
-    loader: {
-        ".png": "dataurl"
-    },
-    plugins: [
-        wasmLoader(),
-        glsl({ minify: !debug })
-    ]
-});
-console.log("build finished!");
+    console.log("building...");
+    ctx = await esbuild.context({
+        entryPoints: [`./src/${project}/index.js`],
+        minify: !debug,
+        bundle: true,
+        outdir: `dist/${project}`,
+        sourcemap: debug,
+        format: "esm",
+        loader: {
+            ".png": "dataurl"
+        },
+        plugins: [
+            wasmLoader(),
+            glsl({ minify: !debug })
+        ]
+    });
+    console.log("build finished!");
 
-await Promise.all(html_pages.map(dirent => fs.cp(path.join(dirent.parentPath, dirent.name), path.join("dist", path.relative("src", path.join(dirent.parentPath, dirent.name))))));
+    await Promise.all(html_pages.map(dirent => fs.cp(path.join(dirent.parentPath, dirent.name), path.join("dist", path.relative("src", path.join(dirent.parentPath, dirent.name))))));
+}
 
 console.log("serving on: " + (await ctx.serve({
     port: parseInt(process.argv[4]) || 3000,

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./index.css">
+        <script type="module" src="./index.js"></script>
+    </head>
+    <body>
+        <form id="configuration-form" action="simulation.html">
+            <div class="option-panel">
+                <label class="option-title" for="num-pendulums-input">Number of pendulums</label>
+                <input class="option-input" type="number" id="num-pendulums-input" required min="1" step="1">
+            </div>
+            <div class="option-panel">
+                <label class="option-title" for="time-step-input">Time step</label>
+                <label class="option-description" for="time-step-input">leave empty for dynamic time step</label>
+                <input class="option-input" type="number" id="time-step-input" min="0" step="any">
+            </div>
+            <div class="option-panel">
+                <label class="option-title" for="tpf-input">Ticks per frame</label>
+                <input class="option-input" type="number" id="tpf-input" required min="1" step="1" value="1">
+            </div>
+            <div class="option-panel">
+                <label class="option-title" for="gravity-input">Gravity</label>
+                <input class="option-input" type="number" id="gravity-input" required value="5" step="any">
+            </div>
+            <input type="submit" id="start-button" value="START">
+        </form>
+    </body>
+</html>
