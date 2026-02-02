@@ -12,7 +12,7 @@ A "physics engine" that only supports dynamic balls and static infinite walls co
 ### [raytracing](https://gdor-11.github.io/miniprojects/dist/raytracing)
 A very basic stochastic raytracer which only supports spheres.
 
-### [multiple pendulum](https://gdor-11.github.io/miniprojects/dist/multiple_pendulum)
+### [multiple pendulum](https://gdor-11.github.io/miniprojects/dist/multiple-pendulum)
 A second attempt at doing what I did in [this project](https://gdor-11.github.io/multiple-pendulum), but now using RK4 on the angles instead of verlet integration on the cartesian coordinates.
 
 ### [infinite minesweeper](https://gdor-11.github.io/miniprojects/dist/infinite_minesweeper)
