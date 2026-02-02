@@ -26,7 +26,7 @@ window.addEventListener("dblclick", () => document.body.style.cursor = document.
 
 const N = Number(window.localStorage.getItem("N") ?? 2);
 const dt = Number(window.localStorage.getItem("dt"));
-const substeps = Number(window.localStorage.getItem("substeps") ?? 1);
+const tpf = Number(window.localStorage.getItem("tpf") ?? 1);
 const g = Number(window.localStorage.getItem("g") ?? 5);
 
 let y: number[] = new Array(2 * N).fill(0).map((_, i) => i < N ? Math.PI / 2 : 0);
@@ -184,10 +184,12 @@ function step(dt: number) {
 
 let last_frame = 0;
 function tick(timestamp: number) {
-    let delta_t = Math.min((timestamp - last_frame) / 1000, 0.1);
-    let substep_dt = (isNaN(dt) ? delta_t : dt) / substeps;
-    for (let i = 0; i < substeps; i++) {
-        step(substep_dt);
+    for (let i = 0; i < tpf; i++) {
+        if (isNaN(dt)) {
+            step((timestamp - last_frame) / (1000 * tpf));
+        } else {
+            step(dt);
+        }
     }
     render();
 

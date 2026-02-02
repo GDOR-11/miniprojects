@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/raytracing/index.css"],
-  "sourcesContent": ["html, body {\n    overflow: hidden;\n    margin: 0px;\n}\n\n#canvas {\n    width: 100vw;\n    height: 100vh;\n}\n"],
-  "mappings": ";AAAA;AAAM;AACF,YAAU;AACV,UAAQ;AACZ;AAEA,CAAC;AACG,SAAO;AACP,UAAQ;AACZ;",
-  "names": []
-}
