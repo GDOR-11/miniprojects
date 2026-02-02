@@ -1,1 +1,11 @@
-html,body{overflow:hidden;margin:0}#canvas{width:100vw;height:100vh}
+/* src/raytracing/index.css */
+html,
+body {
+  overflow: hidden;
+  margin: 0px;
+}
+#canvas {
+  width: 100vw;
+  height: 100vh;
+}
+/*# sourceMappingURL=index.css.map */

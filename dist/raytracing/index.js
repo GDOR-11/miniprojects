@@ -1,5 +1,2057 @@
-var cr=Object.defineProperty;var hr=(r,e)=>{for(var a in e)cr(r,a,{get:e[a],enumerable:!0})};var Z=`#version 300 es
-precision highp float;precision highp int;precision highp sampler2D;struct Ray{vec3 origin;vec3 direction;};struct Material{vec3 albedo;vec3 emissivity;};struct Collision{float distance;vec3 normal;Material material;};struct Sphere{vec3 center;float radius;bool inverted;Material material;};void sphereIntersection(inout Collision current,Ray ray,Sphere sphere){vec3 oc=ray.origin-sphere.center;float b=dot(oc,ray.direction);if(b>0.0&&!sphere.inverted)return;float c=dot(oc,oc)-sphere.radius*sphere.radius;if(c<0.0!=sphere.inverted)return;float a=dot(ray.direction,ray.direction);float d=b*b-a*c;if(d<0.0)return;float t=(-b+(sphere.inverted?1.0:-1.0)*sqrt(d))/a;if(t>=current.distance&&current.distance>=0.0)return;current.distance=t;vec3 hitPoint=ray.origin+t*ray.direction;current.normal=(sphere.inverted?-1.0:1.0)*(hitPoint-sphere.center)/sphere.radius;current.material=sphere.material;}Collision sceneIntersection(Ray ray){Sphere sphere1=Sphere(vec3(0.0,-1.0,10.0),1.0,false,Material(vec3(0.0,1.0,1.0),vec3(0.0)));Sphere sphere2=Sphere(vec3(0.0,1.0,10.0),1.0,false,Material(vec3(1.0,1.0,0.0),vec3(0.0)));Sphere sphere3=Sphere(vec3(2.0,3.0,8.0),1.0,false,Material(vec3(0.0,0.0,0.0),vec3(4.0)));Sphere sphere4=Sphere(vec3(0.0,0.0,5.0),5.1,true,Material(vec3(1.0,1.0,1.0),vec3(0.0)));Collision collision;collision.distance=-1.0;sphereIntersection(collision,ray,sphere1);sphereIntersection(collision,ray,sphere2);sphereIntersection(collision,ray,sphere3);sphereIntersection(collision,ray,sphere4);return collision;}vec3 hash(vec3 p){p=fract(p*vec3(0.1031,0.1030,0.0973));p+=dot(p,p.yzx+33.33);return fract((p.xxy+p.yzz)*p.zyx);}vec3 int_hash(uvec3 x){x=((x>>8U)^ x.yzx)*1103515245U;x=((x>>8U)^ x.yzx)*1103515245U;x=((x>>8U)^ x.yzx)*1103515245U;return vec3(x)*(1.0/float(0xffffffffU));}vec3 randomUnitVector(vec3 seed){vec3 v=vec3(1.0);for(int i=0;length(v)>1.0||length(v)==0.0;i++){vec3 h=seed=hash(seed-vec3(1.0));v=h*2.0-vec3(1.0);}return normalize(v);}float colorCorrection(float intensity){return intensity<=0.0031308?12.92*intensity:1.055*pow(intensity,1.0/2.4)-0.055;}uniform mat4 u_viewMatrix;uniform int u_frame;uniform sampler2D u_lastFrame;uniform bool u_render;in vec3 v_pixelLocation;out vec4 outColor;void main(){vec2 uv=gl_FragCoord.xy/vec2(textureSize(u_lastFrame,0));if(u_render){outColor=texture(u_lastFrame,uv)/float(u_frame+1);outColor=vec4(colorCorrection(outColor.r),colorCorrection(outColor.g),colorCorrection(outColor.b),1.0);return;}vec4 origin=u_viewMatrix*vec4(0.0,0.0,0.0,1.0);vec4 direction=u_viewMatrix*vec4(normalize(v_pixelLocation),0.0);vec3 seed=int_hash(uvec3(gl_FragCoord.xy,u_frame));vec3 color=vec3(0.0);vec3 contribution=vec3(1.0);Ray ray=Ray(origin.xyz,direction.xyz);for(int i=0;i<5;i++){Collision collision=sceneIntersection(ray);vec3 hitPoint=ray.origin+ray.direction*collision.distance+collision.normal*0.001;if(collision.distance<0.0)break;color+=contribution*collision.material.emissivity;contribution*=collision.material.albedo;if(contribution==vec3(0.0))break;ray.origin=hitPoint;ray.direction=randomUnitVector(seed=hash(seed));if(dot(ray.direction,collision.normal)<0.0){ray.direction=-ray.direction;}contribution*=dot(ray.direction,collision.normal);}if(u_frame==0){outColor=vec4(color,1.0);return;}outColor.rgb=texture(u_lastFrame,uv).rgb+color;outColor.a=1.0;}`;var j=`#version 300 es
-uniform vec2 u_screenSize;out vec3 v_pixelLocation;in vec2 a_position;void main(){gl_Position=vec4(a_position,0,1);v_pixelLocation=vec3(0.5*a_position*u_screenSize,1);}`;var O=1e-6,C=typeof Float32Array<"u"?Float32Array:Array;var m1=Math.PI/180,M1=180/Math.PI;var B={};hr(B,{add:()=>Qr,adjoint:()=>yr,clone:()=>lr,copy:()=>mr,create:()=>fr,decompose:()=>Nr,determinant:()=>gr,equals:()=>or,exactEquals:()=>Jr,frob:()=>jr,fromQuat:()=>Gr,fromQuat2:()=>Fr,fromRotation:()=>Lr,fromRotationTranslation:()=>K,fromRotationTranslationScale:()=>Cr,fromRotationTranslationScaleOrigin:()=>Dr,fromScaling:()=>_r,fromTranslation:()=>Ar,fromValues:()=>Mr,fromXRotation:()=>Pr,fromYRotation:()=>Ir,fromZRotation:()=>wr,frustum:()=>qr,getRotation:()=>Ur,getScaling:()=>J,getTranslation:()=>Or,identity:()=>Q,invert:()=>dr,lookAt:()=>kr,mul:()=>ur,multiply:()=>$,multiplyScalar:()=>$r,multiplyScalarAndAdd:()=>Kr,ortho:()=>Vr,orthoNO:()=>u,orthoZO:()=>Wr,perspective:()=>Xr,perspectiveFromFieldOfView:()=>Br,perspectiveNO:()=>o,perspectiveZO:()=>Yr,rotate:()=>br,rotateX:()=>Tr,rotateY:()=>zr,rotateZ:()=>Sr,scale:()=>Rr,set:()=>pr,str:()=>Zr,sub:()=>r1,subtract:()=>rr,targetTo:()=>Hr,translate:()=>Er,transpose:()=>tr});function fr(){var r=new C(16);return C!=Float32Array&&(r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[11]=0,r[12]=0,r[13]=0,r[14]=0),r[0]=1,r[5]=1,r[10]=1,r[15]=1,r}function lr(r){var e=new C(16);return e[0]=r[0],e[1]=r[1],e[2]=r[2],e[3]=r[3],e[4]=r[4],e[5]=r[5],e[6]=r[6],e[7]=r[7],e[8]=r[8],e[9]=r[9],e[10]=r[10],e[11]=r[11],e[12]=r[12],e[13]=r[13],e[14]=r[14],e[15]=r[15],e}function mr(r,e){return r[0]=e[0],r[1]=e[1],r[2]=e[2],r[3]=e[3],r[4]=e[4],r[5]=e[5],r[6]=e[6],r[7]=e[7],r[8]=e[8],r[9]=e[9],r[10]=e[10],r[11]=e[11],r[12]=e[12],r[13]=e[13],r[14]=e[14],r[15]=e[15],r}function Mr(r,e,a,n,i,v,s,c,x,h,f,m,p,M,t,y){var l=new C(16);return l[0]=r,l[1]=e,l[2]=a,l[3]=n,l[4]=i,l[5]=v,l[6]=s,l[7]=c,l[8]=x,l[9]=h,l[10]=f,l[11]=m,l[12]=p,l[13]=M,l[14]=t,l[15]=y,l}function pr(r,e,a,n,i,v,s,c,x,h,f,m,p,M,t,y,l){return r[0]=e,r[1]=a,r[2]=n,r[3]=i,r[4]=v,r[5]=s,r[6]=c,r[7]=x,r[8]=h,r[9]=f,r[10]=m,r[11]=p,r[12]=M,r[13]=t,r[14]=y,r[15]=l,r}function Q(r){return r[0]=1,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=1,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[10]=1,r[11]=0,r[12]=0,r[13]=0,r[14]=0,r[15]=1,r}function tr(r,e){if(r===e){var a=e[1],n=e[2],i=e[3],v=e[6],s=e[7],c=e[11];r[1]=e[4],r[2]=e[8],r[3]=e[12],r[4]=a,r[6]=e[9],r[7]=e[13],r[8]=n,r[9]=v,r[11]=e[14],r[12]=i,r[13]=s,r[14]=c}else r[0]=e[0],r[1]=e[4],r[2]=e[8],r[3]=e[12],r[4]=e[1],r[5]=e[5],r[6]=e[9],r[7]=e[13],r[8]=e[2],r[9]=e[6],r[10]=e[10],r[11]=e[14],r[12]=e[3],r[13]=e[7],r[14]=e[11],r[15]=e[15];return r}function dr(r,e){var a=e[0],n=e[1],i=e[2],v=e[3],s=e[4],c=e[5],x=e[6],h=e[7],f=e[8],m=e[9],p=e[10],M=e[11],t=e[12],y=e[13],l=e[14],T=e[15],S=a*c-n*s,b=a*x-i*s,g=a*h-v*s,E=n*x-i*c,R=n*h-v*c,L=i*h-v*x,A=f*y-m*t,P=f*l-p*t,z=f*T-M*t,I=m*l-p*y,w=m*T-M*y,F=p*T-M*l,_=S*F-b*w+g*I+E*z-R*P+L*A;return _?(_=1/_,r[0]=(c*F-x*w+h*I)*_,r[1]=(i*w-n*F-v*I)*_,r[2]=(y*L-l*R+T*E)*_,r[3]=(p*R-m*L-M*E)*_,r[4]=(x*z-s*F-h*P)*_,r[5]=(a*F-i*z+v*P)*_,r[6]=(l*g-t*L-T*b)*_,r[7]=(f*L-p*g+M*b)*_,r[8]=(s*w-c*z+h*A)*_,r[9]=(n*z-a*w-v*A)*_,r[10]=(t*R-y*g+T*S)*_,r[11]=(m*g-f*R-M*S)*_,r[12]=(c*P-s*I-x*A)*_,r[13]=(a*I-n*P+i*A)*_,r[14]=(y*b-t*E-l*S)*_,r[15]=(f*E-m*b+p*S)*_,r):null}function yr(r,e){var a=e[0],n=e[1],i=e[2],v=e[3],s=e[4],c=e[5],x=e[6],h=e[7],f=e[8],m=e[9],p=e[10],M=e[11],t=e[12],y=e[13],l=e[14],T=e[15],S=a*c-n*s,b=a*x-i*s,g=a*h-v*s,E=n*x-i*c,R=n*h-v*c,L=i*h-v*x,A=f*y-m*t,P=f*l-p*t,z=f*T-M*t,I=m*l-p*y,w=m*T-M*y,F=p*T-M*l;return r[0]=c*F-x*w+h*I,r[1]=i*w-n*F-v*I,r[2]=y*L-l*R+T*E,r[3]=p*R-m*L-M*E,r[4]=x*z-s*F-h*P,r[5]=a*F-i*z+v*P,r[6]=l*g-t*L-T*b,r[7]=f*L-p*g+M*b,r[8]=s*w-c*z+h*A,r[9]=n*z-a*w-v*A,r[10]=t*R-y*g+T*S,r[11]=m*g-f*R-M*S,r[12]=c*P-s*I-x*A,r[13]=a*I-n*P+i*A,r[14]=y*b-t*E-l*S,r[15]=f*E-m*b+p*S,r}function gr(r){var e=r[0],a=r[1],n=r[2],i=r[3],v=r[4],s=r[5],c=r[6],x=r[7],h=r[8],f=r[9],m=r[10],p=r[11],M=r[12],t=r[13],y=r[14],l=r[15],T=e*s-a*v,S=e*c-n*v,b=a*c-n*s,g=h*t-f*M,E=h*y-m*M,R=f*y-m*t,L=e*R-a*E+n*g,A=v*R-s*E+c*g,P=h*b-f*S+m*T,z=M*b-t*S+y*T;return x*L-i*A+l*P-p*z}function $(r,e,a){var n=e[0],i=e[1],v=e[2],s=e[3],c=e[4],x=e[5],h=e[6],f=e[7],m=e[8],p=e[9],M=e[10],t=e[11],y=e[12],l=e[13],T=e[14],S=e[15],b=a[0],g=a[1],E=a[2],R=a[3];return r[0]=b*n+g*c+E*m+R*y,r[1]=b*i+g*x+E*p+R*l,r[2]=b*v+g*h+E*M+R*T,r[3]=b*s+g*f+E*t+R*S,b=a[4],g=a[5],E=a[6],R=a[7],r[4]=b*n+g*c+E*m+R*y,r[5]=b*i+g*x+E*p+R*l,r[6]=b*v+g*h+E*M+R*T,r[7]=b*s+g*f+E*t+R*S,b=a[8],g=a[9],E=a[10],R=a[11],r[8]=b*n+g*c+E*m+R*y,r[9]=b*i+g*x+E*p+R*l,r[10]=b*v+g*h+E*M+R*T,r[11]=b*s+g*f+E*t+R*S,b=a[12],g=a[13],E=a[14],R=a[15],r[12]=b*n+g*c+E*m+R*y,r[13]=b*i+g*x+E*p+R*l,r[14]=b*v+g*h+E*M+R*T,r[15]=b*s+g*f+E*t+R*S,r}function Er(r,e,a){var n=a[0],i=a[1],v=a[2],s,c,x,h,f,m,p,M,t,y,l,T;return e===r?(r[12]=e[0]*n+e[4]*i+e[8]*v+e[12],r[13]=e[1]*n+e[5]*i+e[9]*v+e[13],r[14]=e[2]*n+e[6]*i+e[10]*v+e[14],r[15]=e[3]*n+e[7]*i+e[11]*v+e[15]):(s=e[0],c=e[1],x=e[2],h=e[3],f=e[4],m=e[5],p=e[6],M=e[7],t=e[8],y=e[9],l=e[10],T=e[11],r[0]=s,r[1]=c,r[2]=x,r[3]=h,r[4]=f,r[5]=m,r[6]=p,r[7]=M,r[8]=t,r[9]=y,r[10]=l,r[11]=T,r[12]=s*n+f*i+t*v+e[12],r[13]=c*n+m*i+y*v+e[13],r[14]=x*n+p*i+l*v+e[14],r[15]=h*n+M*i+T*v+e[15]),r}function Rr(r,e,a){var n=a[0],i=a[1],v=a[2];return r[0]=e[0]*n,r[1]=e[1]*n,r[2]=e[2]*n,r[3]=e[3]*n,r[4]=e[4]*i,r[5]=e[5]*i,r[6]=e[6]*i,r[7]=e[7]*i,r[8]=e[8]*v,r[9]=e[9]*v,r[10]=e[10]*v,r[11]=e[11]*v,r[12]=e[12],r[13]=e[13],r[14]=e[14],r[15]=e[15],r}function br(r,e,a,n){var i=n[0],v=n[1],s=n[2],c=Math.sqrt(i*i+v*v+s*s),x,h,f,m,p,M,t,y,l,T,S,b,g,E,R,L,A,P,z,I,w,F,_,U;return c<O?null:(c=1/c,i*=c,v*=c,s*=c,x=Math.sin(a),h=Math.cos(a),f=1-h,m=e[0],p=e[1],M=e[2],t=e[3],y=e[4],l=e[5],T=e[6],S=e[7],b=e[8],g=e[9],E=e[10],R=e[11],L=i*i*f+h,A=v*i*f+s*x,P=s*i*f-v*x,z=i*v*f-s*x,I=v*v*f+h,w=s*v*f+i*x,F=i*s*f+v*x,_=v*s*f-i*x,U=s*s*f+h,r[0]=m*L+y*A+b*P,r[1]=p*L+l*A+g*P,r[2]=M*L+T*A+E*P,r[3]=t*L+S*A+R*P,r[4]=m*z+y*I+b*w,r[5]=p*z+l*I+g*w,r[6]=M*z+T*I+E*w,r[7]=t*z+S*I+R*w,r[8]=m*F+y*_+b*U,r[9]=p*F+l*_+g*U,r[10]=M*F+T*_+E*U,r[11]=t*F+S*_+R*U,e!==r&&(r[12]=e[12],r[13]=e[13],r[14]=e[14],r[15]=e[15]),r)}function Tr(r,e,a){var n=Math.sin(a),i=Math.cos(a),v=e[4],s=e[5],c=e[6],x=e[7],h=e[8],f=e[9],m=e[10],p=e[11];return e!==r&&(r[0]=e[0],r[1]=e[1],r[2]=e[2],r[3]=e[3],r[12]=e[12],r[13]=e[13],r[14]=e[14],r[15]=e[15]),r[4]=v*i+h*n,r[5]=s*i+f*n,r[6]=c*i+m*n,r[7]=x*i+p*n,r[8]=h*i-v*n,r[9]=f*i-s*n,r[10]=m*i-c*n,r[11]=p*i-x*n,r}function zr(r,e,a){var n=Math.sin(a),i=Math.cos(a),v=e[0],s=e[1],c=e[2],x=e[3],h=e[8],f=e[9],m=e[10],p=e[11];return e!==r&&(r[4]=e[4],r[5]=e[5],r[6]=e[6],r[7]=e[7],r[12]=e[12],r[13]=e[13],r[14]=e[14],r[15]=e[15]),r[0]=v*i-h*n,r[1]=s*i-f*n,r[2]=c*i-m*n,r[3]=x*i-p*n,r[8]=v*n+h*i,r[9]=s*n+f*i,r[10]=c*n+m*i,r[11]=x*n+p*i,r}function Sr(r,e,a){var n=Math.sin(a),i=Math.cos(a),v=e[0],s=e[1],c=e[2],x=e[3],h=e[4],f=e[5],m=e[6],p=e[7];return e!==r&&(r[8]=e[8],r[9]=e[9],r[10]=e[10],r[11]=e[11],r[12]=e[12],r[13]=e[13],r[14]=e[14],r[15]=e[15]),r[0]=v*i+h*n,r[1]=s*i+f*n,r[2]=c*i+m*n,r[3]=x*i+p*n,r[4]=h*i-v*n,r[5]=f*i-s*n,r[6]=m*i-c*n,r[7]=p*i-x*n,r}function Ar(r,e){return r[0]=1,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=1,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[10]=1,r[11]=0,r[12]=e[0],r[13]=e[1],r[14]=e[2],r[15]=1,r}function _r(r,e){return r[0]=e[0],r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=e[1],r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[10]=e[2],r[11]=0,r[12]=0,r[13]=0,r[14]=0,r[15]=1,r}function Lr(r,e,a){var n=a[0],i=a[1],v=a[2],s=Math.sqrt(n*n+i*i+v*v),c,x,h;return s<O?null:(s=1/s,n*=s,i*=s,v*=s,c=Math.sin(e),x=Math.cos(e),h=1-x,r[0]=n*n*h+x,r[1]=i*n*h+v*c,r[2]=v*n*h-i*c,r[3]=0,r[4]=n*i*h-v*c,r[5]=i*i*h+x,r[6]=v*i*h+n*c,r[7]=0,r[8]=n*v*h+i*c,r[9]=i*v*h-n*c,r[10]=v*v*h+x,r[11]=0,r[12]=0,r[13]=0,r[14]=0,r[15]=1,r)}function Pr(r,e){var a=Math.sin(e),n=Math.cos(e);return r[0]=1,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=n,r[6]=a,r[7]=0,r[8]=0,r[9]=-a,r[10]=n,r[11]=0,r[12]=0,r[13]=0,r[14]=0,r[15]=1,r}function Ir(r,e){var a=Math.sin(e),n=Math.cos(e);return r[0]=n,r[1]=0,r[2]=-a,r[3]=0,r[4]=0,r[5]=1,r[6]=0,r[7]=0,r[8]=a,r[9]=0,r[10]=n,r[11]=0,r[12]=0,r[13]=0,r[14]=0,r[15]=1,r}function wr(r,e){var a=Math.sin(e),n=Math.cos(e);return r[0]=n,r[1]=a,r[2]=0,r[3]=0,r[4]=-a,r[5]=n,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[10]=1,r[11]=0,r[12]=0,r[13]=0,r[14]=0,r[15]=1,r}function K(r,e,a){var n=e[0],i=e[1],v=e[2],s=e[3],c=n+n,x=i+i,h=v+v,f=n*c,m=n*x,p=n*h,M=i*x,t=i*h,y=v*h,l=s*c,T=s*x,S=s*h;return r[0]=1-(M+y),r[1]=m+S,r[2]=p-T,r[3]=0,r[4]=m-S,r[5]=1-(f+y),r[6]=t+l,r[7]=0,r[8]=p+T,r[9]=t-l,r[10]=1-(f+M),r[11]=0,r[12]=a[0],r[13]=a[1],r[14]=a[2],r[15]=1,r}function Fr(r,e){var a=new C(3),n=-e[0],i=-e[1],v=-e[2],s=e[3],c=e[4],x=e[5],h=e[6],f=e[7],m=n*n+i*i+v*v+s*s;return m>0?(a[0]=(c*s+f*n+x*v-h*i)*2/m,a[1]=(x*s+f*i+h*n-c*v)*2/m,a[2]=(h*s+f*v+c*i-x*n)*2/m):(a[0]=(c*s+f*n+x*v-h*i)*2,a[1]=(x*s+f*i+h*n-c*v)*2,a[2]=(h*s+f*v+c*i-x*n)*2),K(r,e,a),r}function Or(r,e){return r[0]=e[12],r[1]=e[13],r[2]=e[14],r}function J(r,e){var a=e[0],n=e[1],i=e[2],v=e[4],s=e[5],c=e[6],x=e[8],h=e[9],f=e[10];return r[0]=Math.sqrt(a*a+n*n+i*i),r[1]=Math.sqrt(v*v+s*s+c*c),r[2]=Math.sqrt(x*x+h*h+f*f),r}function Ur(r,e){var a=new C(3);J(a,e);var n=1/a[0],i=1/a[1],v=1/a[2],s=e[0]*n,c=e[1]*i,x=e[2]*v,h=e[4]*n,f=e[5]*i,m=e[6]*v,p=e[8]*n,M=e[9]*i,t=e[10]*v,y=s+f+t,l=0;return y>0?(l=Math.sqrt(y+1)*2,r[3]=.25*l,r[0]=(m-M)/l,r[1]=(p-x)/l,r[2]=(c-h)/l):s>f&&s>t?(l=Math.sqrt(1+s-f-t)*2,r[3]=(m-M)/l,r[0]=.25*l,r[1]=(c+h)/l,r[2]=(p+x)/l):f>t?(l=Math.sqrt(1+f-s-t)*2,r[3]=(p-x)/l,r[0]=(c+h)/l,r[1]=.25*l,r[2]=(m+M)/l):(l=Math.sqrt(1+t-s-f)*2,r[3]=(c-h)/l,r[0]=(p+x)/l,r[1]=(m+M)/l,r[2]=.25*l),r}function Nr(r,e,a,n){e[0]=n[12],e[1]=n[13],e[2]=n[14];var i=n[0],v=n[1],s=n[2],c=n[4],x=n[5],h=n[6],f=n[8],m=n[9],p=n[10];a[0]=Math.sqrt(i*i+v*v+s*s),a[1]=Math.sqrt(c*c+x*x+h*h),a[2]=Math.sqrt(f*f+m*m+p*p);var M=1/a[0],t=1/a[1],y=1/a[2],l=i*M,T=v*t,S=s*y,b=c*M,g=x*t,E=h*y,R=f*M,L=m*t,A=p*y,P=l+g+A,z=0;return P>0?(z=Math.sqrt(P+1)*2,r[3]=.25*z,r[0]=(E-L)/z,r[1]=(R-S)/z,r[2]=(T-b)/z):l>g&&l>A?(z=Math.sqrt(1+l-g-A)*2,r[3]=(E-L)/z,r[0]=.25*z,r[1]=(T+b)/z,r[2]=(R+S)/z):g>A?(z=Math.sqrt(1+g-l-A)*2,r[3]=(R-S)/z,r[0]=(T+b)/z,r[1]=.25*z,r[2]=(E+L)/z):(z=Math.sqrt(1+A-l-g)*2,r[3]=(T-b)/z,r[0]=(R+S)/z,r[1]=(E+L)/z,r[2]=.25*z),r}function Cr(r,e,a,n){var i=e[0],v=e[1],s=e[2],c=e[3],x=i+i,h=v+v,f=s+s,m=i*x,p=i*h,M=i*f,t=v*h,y=v*f,l=s*f,T=c*x,S=c*h,b=c*f,g=n[0],E=n[1],R=n[2];return r[0]=(1-(t+l))*g,r[1]=(p+b)*g,r[2]=(M-S)*g,r[3]=0,r[4]=(p-b)*E,r[5]=(1-(m+l))*E,r[6]=(y+T)*E,r[7]=0,r[8]=(M+S)*R,r[9]=(y-T)*R,r[10]=(1-(m+t))*R,r[11]=0,r[12]=a[0],r[13]=a[1],r[14]=a[2],r[15]=1,r}function Dr(r,e,a,n,i){var v=e[0],s=e[1],c=e[2],x=e[3],h=v+v,f=s+s,m=c+c,p=v*h,M=v*f,t=v*m,y=s*f,l=s*m,T=c*m,S=x*h,b=x*f,g=x*m,E=n[0],R=n[1],L=n[2],A=i[0],P=i[1],z=i[2],I=(1-(y+T))*E,w=(M+g)*E,F=(t-b)*E,_=(M-g)*R,U=(1-(p+T))*R,X=(l+S)*R,Y=(t+b)*L,k=(l-S)*L,H=(1-(p+y))*L;return r[0]=I,r[1]=w,r[2]=F,r[3]=0,r[4]=_,r[5]=U,r[6]=X,r[7]=0,r[8]=Y,r[9]=k,r[10]=H,r[11]=0,r[12]=a[0]+A-(I*A+_*P+Y*z),r[13]=a[1]+P-(w*A+U*P+k*z),r[14]=a[2]+z-(F*A+X*P+H*z),r[15]=1,r}function Gr(r,e){var a=e[0],n=e[1],i=e[2],v=e[3],s=a+a,c=n+n,x=i+i,h=a*s,f=n*s,m=n*c,p=i*s,M=i*c,t=i*x,y=v*s,l=v*c,T=v*x;return r[0]=1-m-t,r[1]=f+T,r[2]=p-l,r[3]=0,r[4]=f-T,r[5]=1-h-t,r[6]=M+y,r[7]=0,r[8]=p+l,r[9]=M-y,r[10]=1-h-m,r[11]=0,r[12]=0,r[13]=0,r[14]=0,r[15]=1,r}function qr(r,e,a,n,i,v,s){var c=1/(a-e),x=1/(i-n),h=1/(v-s);return r[0]=v*2*c,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=v*2*x,r[6]=0,r[7]=0,r[8]=(a+e)*c,r[9]=(i+n)*x,r[10]=(s+v)*h,r[11]=-1,r[12]=0,r[13]=0,r[14]=s*v*2*h,r[15]=0,r}function o(r,e,a,n,i){var v=1/Math.tan(e/2);if(r[0]=v/a,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=v,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[11]=-1,r[12]=0,r[13]=0,r[15]=0,i!=null&&i!==1/0){var s=1/(n-i);r[10]=(i+n)*s,r[14]=2*i*n*s}else r[10]=-1,r[14]=-2*n;return r}var Xr=o;function Yr(r,e,a,n,i){var v=1/Math.tan(e/2);if(r[0]=v/a,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=v,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[11]=-1,r[12]=0,r[13]=0,r[15]=0,i!=null&&i!==1/0){var s=1/(n-i);r[10]=i*s,r[14]=i*n*s}else r[10]=-1,r[14]=-n;return r}function Br(r,e,a,n){var i=Math.tan(e.upDegrees*Math.PI/180),v=Math.tan(e.downDegrees*Math.PI/180),s=Math.tan(e.leftDegrees*Math.PI/180),c=Math.tan(e.rightDegrees*Math.PI/180),x=2/(s+c),h=2/(i+v);return r[0]=x,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=h,r[6]=0,r[7]=0,r[8]=-((s-c)*x*.5),r[9]=(i-v)*h*.5,r[10]=n/(a-n),r[11]=-1,r[12]=0,r[13]=0,r[14]=n*a/(a-n),r[15]=0,r}function u(r,e,a,n,i,v,s){var c=1/(e-a),x=1/(n-i),h=1/(v-s);return r[0]=-2*c,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=-2*x,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[10]=2*h,r[11]=0,r[12]=(e+a)*c,r[13]=(i+n)*x,r[14]=(s+v)*h,r[15]=1,r}var Vr=u;function Wr(r,e,a,n,i,v,s){var c=1/(e-a),x=1/(n-i),h=1/(v-s);return r[0]=-2*c,r[1]=0,r[2]=0,r[3]=0,r[4]=0,r[5]=-2*x,r[6]=0,r[7]=0,r[8]=0,r[9]=0,r[10]=h,r[11]=0,r[12]=(e+a)*c,r[13]=(i+n)*x,r[14]=v*h,r[15]=1,r}function kr(r,e,a,n){var i,v,s,c,x,h,f,m,p,M,t=e[0],y=e[1],l=e[2],T=n[0],S=n[1],b=n[2],g=a[0],E=a[1],R=a[2];return Math.abs(t-g)<O&&Math.abs(y-E)<O&&Math.abs(l-R)<O?Q(r):(f=t-g,m=y-E,p=l-R,M=1/Math.sqrt(f*f+m*m+p*p),f*=M,m*=M,p*=M,i=S*p-b*m,v=b*f-T*p,s=T*m-S*f,M=Math.sqrt(i*i+v*v+s*s),M?(M=1/M,i*=M,v*=M,s*=M):(i=0,v=0,s=0),c=m*s-p*v,x=p*i-f*s,h=f*v-m*i,M=Math.sqrt(c*c+x*x+h*h),M?(M=1/M,c*=M,x*=M,h*=M):(c=0,x=0,h=0),r[0]=i,r[1]=c,r[2]=f,r[3]=0,r[4]=v,r[5]=x,r[6]=m,r[7]=0,r[8]=s,r[9]=h,r[10]=p,r[11]=0,r[12]=-(i*t+v*y+s*l),r[13]=-(c*t+x*y+h*l),r[14]=-(f*t+m*y+p*l),r[15]=1,r)}function Hr(r,e,a,n){var i=e[0],v=e[1],s=e[2],c=n[0],x=n[1],h=n[2],f=i-a[0],m=v-a[1],p=s-a[2],M=f*f+m*m+p*p;M>0&&(M=1/Math.sqrt(M),f*=M,m*=M,p*=M);var t=x*p-h*m,y=h*f-c*p,l=c*m-x*f;return M=t*t+y*y+l*l,M>0&&(M=1/Math.sqrt(M),t*=M,y*=M,l*=M),r[0]=t,r[1]=y,r[2]=l,r[3]=0,r[4]=m*l-p*y,r[5]=p*t-f*l,r[6]=f*y-m*t,r[7]=0,r[8]=f,r[9]=m,r[10]=p,r[11]=0,r[12]=i,r[13]=v,r[14]=s,r[15]=1,r}function Zr(r){return"mat4("+r[0]+", "+r[1]+", "+r[2]+", "+r[3]+", "+r[4]+", "+r[5]+", "+r[6]+", "+r[7]+", "+r[8]+", "+r[9]+", "+r[10]+", "+r[11]+", "+r[12]+", "+r[13]+", "+r[14]+", "+r[15]+")"}function jr(r){return Math.sqrt(r[0]*r[0]+r[1]*r[1]+r[2]*r[2]+r[3]*r[3]+r[4]*r[4]+r[5]*r[5]+r[6]*r[6]+r[7]*r[7]+r[8]*r[8]+r[9]*r[9]+r[10]*r[10]+r[11]*r[11]+r[12]*r[12]+r[13]*r[13]+r[14]*r[14]+r[15]*r[15])}function Qr(r,e,a){return r[0]=e[0]+a[0],r[1]=e[1]+a[1],r[2]=e[2]+a[2],r[3]=e[3]+a[3],r[4]=e[4]+a[4],r[5]=e[5]+a[5],r[6]=e[6]+a[6],r[7]=e[7]+a[7],r[8]=e[8]+a[8],r[9]=e[9]+a[9],r[10]=e[10]+a[10],r[11]=e[11]+a[11],r[12]=e[12]+a[12],r[13]=e[13]+a[13],r[14]=e[14]+a[14],r[15]=e[15]+a[15],r}function rr(r,e,a){return r[0]=e[0]-a[0],r[1]=e[1]-a[1],r[2]=e[2]-a[2],r[3]=e[3]-a[3],r[4]=e[4]-a[4],r[5]=e[5]-a[5],r[6]=e[6]-a[6],r[7]=e[7]-a[7],r[8]=e[8]-a[8],r[9]=e[9]-a[9],r[10]=e[10]-a[10],r[11]=e[11]-a[11],r[12]=e[12]-a[12],r[13]=e[13]-a[13],r[14]=e[14]-a[14],r[15]=e[15]-a[15],r}function $r(r,e,a){return r[0]=e[0]*a,r[1]=e[1]*a,r[2]=e[2]*a,r[3]=e[3]*a,r[4]=e[4]*a,r[5]=e[5]*a,r[6]=e[6]*a,r[7]=e[7]*a,r[8]=e[8]*a,r[9]=e[9]*a,r[10]=e[10]*a,r[11]=e[11]*a,r[12]=e[12]*a,r[13]=e[13]*a,r[14]=e[14]*a,r[15]=e[15]*a,r}function Kr(r,e,a,n){return r[0]=e[0]+a[0]*n,r[1]=e[1]+a[1]*n,r[2]=e[2]+a[2]*n,r[3]=e[3]+a[3]*n,r[4]=e[4]+a[4]*n,r[5]=e[5]+a[5]*n,r[6]=e[6]+a[6]*n,r[7]=e[7]+a[7]*n,r[8]=e[8]+a[8]*n,r[9]=e[9]+a[9]*n,r[10]=e[10]+a[10]*n,r[11]=e[11]+a[11]*n,r[12]=e[12]+a[12]*n,r[13]=e[13]+a[13]*n,r[14]=e[14]+a[14]*n,r[15]=e[15]+a[15]*n,r}function Jr(r,e){return r[0]===e[0]&&r[1]===e[1]&&r[2]===e[2]&&r[3]===e[3]&&r[4]===e[4]&&r[5]===e[5]&&r[6]===e[6]&&r[7]===e[7]&&r[8]===e[8]&&r[9]===e[9]&&r[10]===e[10]&&r[11]===e[11]&&r[12]===e[12]&&r[13]===e[13]&&r[14]===e[14]&&r[15]===e[15]}function or(r,e){var a=r[0],n=r[1],i=r[2],v=r[3],s=r[4],c=r[5],x=r[6],h=r[7],f=r[8],m=r[9],p=r[10],M=r[11],t=r[12],y=r[13],l=r[14],T=r[15],S=e[0],b=e[1],g=e[2],E=e[3],R=e[4],L=e[5],A=e[6],P=e[7],z=e[8],I=e[9],w=e[10],F=e[11],_=e[12],U=e[13],X=e[14],Y=e[15];return Math.abs(a-S)<=O*Math.max(1,Math.abs(a),Math.abs(S))&&Math.abs(n-b)<=O*Math.max(1,Math.abs(n),Math.abs(b))&&Math.abs(i-g)<=O*Math.max(1,Math.abs(i),Math.abs(g))&&Math.abs(v-E)<=O*Math.max(1,Math.abs(v),Math.abs(E))&&Math.abs(s-R)<=O*Math.max(1,Math.abs(s),Math.abs(R))&&Math.abs(c-L)<=O*Math.max(1,Math.abs(c),Math.abs(L))&&Math.abs(x-A)<=O*Math.max(1,Math.abs(x),Math.abs(A))&&Math.abs(h-P)<=O*Math.max(1,Math.abs(h),Math.abs(P))&&Math.abs(f-z)<=O*Math.max(1,Math.abs(f),Math.abs(z))&&Math.abs(m-I)<=O*Math.max(1,Math.abs(m),Math.abs(I))&&Math.abs(p-w)<=O*Math.max(1,Math.abs(p),Math.abs(w))&&Math.abs(M-F)<=O*Math.max(1,Math.abs(M),Math.abs(F))&&Math.abs(t-_)<=O*Math.max(1,Math.abs(t),Math.abs(_))&&Math.abs(y-U)<=O*Math.max(1,Math.abs(y),Math.abs(U))&&Math.abs(l-X)<=O*Math.max(1,Math.abs(l),Math.abs(X))&&Math.abs(T-Y)<=O*Math.max(1,Math.abs(T),Math.abs(Y))}var ur=$,r1=rr;function W(r){throw alert(r),new Error(r)}var V=document.getElementById("canvas"),d=V.getContext("webgl2");d||W("webgl2 is not supported");d.getExtension("EXT_color_buffer_float")||W("EXT_color_buffer_float is not supported");var er=window.devicePixelRatio,G=Math.round(V.clientWidth*er),q=Math.round(V.clientHeight*er);V.width=G;V.height=q;d.viewport(0,0,G,q);function ar(r,e,a){let n=r.createShader(e);if(r.shaderSource(n,a),r.compileShader(n),r.getShaderParameter(n,r.COMPILE_STATUS))return n;let v=r.getShaderInfoLog(n);r.deleteShader(n),W(`failed to compile shader:
-${v}`)}function e1(r,e,a){let n=r.createProgram();if(r.attachShader(n,e),r.attachShader(n,a),r.linkProgram(n),r.getProgramParameter(n,r.LINK_STATUS))return n;let v=r.getProgramInfoLog(n);r.deleteProgram(n),W(`failed to link program:
-${v}`)}function a1(r,e,a,n){n!==void 0&&r.bindVertexArray(n),r.bindBuffer(r.ARRAY_BUFFER,r.createBuffer()),r.bufferData(r.ARRAY_BUFFER,a.data,r.STATIC_DRAW),r.enableVertexAttribArray(e),r.vertexAttribPointer(e,a.size,a.type,a.normalized??!1,a.stride??0,a.offset??0),r.enableVertexAttribArray(e)}var n1=ar(d,d.VERTEX_SHADER,j),i1=ar(d,d.FRAGMENT_SHADER,Z),D=e1(d,n1,i1);d.useProgram(D);var N={attributes:{a_position:d.getAttribLocation(D,"a_position")},uniforms:{u_viewMatrix:d.getUniformLocation(D,"u_viewMatrix"),u_screenSize:d.getUniformLocation(D,"u_screenSize"),u_frame:d.getUniformLocation(D,"u_frame"),u_lastFrame:d.getUniformLocation(D,"u_lastFrame"),u_render:d.getUniformLocation(D,"u_render")}};d.uniform2f(N.uniforms.u_screenSize,.5*G/q,.5);var v1=d.createVertexArray();d.bindVertexArray(v1);a1(d,N.attributes.a_position,{data:new Float32Array([-1,-1,-1,1,1,-1,1,1,1,-1,-1,1]),size:2,type:d.FLOAT});var nr=d.createTexture();d.activeTexture(d.TEXTURE1);d.bindTexture(d.TEXTURE_2D,nr);d.texImage2D(d.TEXTURE_2D,0,d.RGBA32F,G,q,0,d.RGBA,d.FLOAT,null);d.texParameteri(d.TEXTURE_2D,d.TEXTURE_MIN_FILTER,d.NEAREST);d.texParameteri(d.TEXTURE_2D,d.TEXTURE_MAG_FILTER,d.NEAREST);var ir=d.createTexture();d.activeTexture(d.TEXTURE0);d.bindTexture(d.TEXTURE_2D,ir);d.texImage2D(d.TEXTURE_2D,0,d.RGBA32F,G,q,0,d.RGBA,d.FLOAT,null);var vr=d.createFramebuffer();d.bindFramebuffer(d.FRAMEBUFFER,vr);d.framebufferTexture2D(d.FRAMEBUFFER,d.COLOR_ATTACHMENT0,d.TEXTURE_2D,ir,0);var s1=0;function sr(){d.uniform1i(N.uniforms.u_frame,s1++),d.uniformMatrix4fv(N.uniforms.u_viewMatrix,!1,B.identity(B.create())),d.uniform1i(N.uniforms.u_lastFrame,1),d.uniform1i(N.uniforms.u_render,0),d.bindFramebuffer(d.FRAMEBUFFER,vr),d.drawArrays(d.TRIANGLES,0,6),d.bindTexture(d.TEXTURE_2D,nr),d.copyTexImage2D(d.TEXTURE_2D,0,d.RGBA32F,0,0,G,q,0),d.uniform1i(N.uniforms.u_lastFrame,0),d.uniform1i(N.uniforms.u_render,1),d.bindFramebuffer(d.FRAMEBUFFER,null),d.drawArrays(d.TRIANGLES,0,6),requestAnimationFrame(sr)}requestAnimationFrame(sr);
+var __defProp = Object.defineProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
+// src/raytracing/fragment.glsl
+var fragment_default = `#version 300 es
+precision highp float;
+precision highp int;
+precision highp sampler2D;
+
+struct Ray {
+    vec3 origin;
+    vec3 direction;
+};
+struct Material {
+    vec3 albedo;
+    vec3 emissivity;
+    uint BRDFid;
+};
+struct Collision {
+    float distance;
+    vec3 normal;
+    Material material;
+};
+struct Sphere {
+    vec3 center;
+    float radius;
+    bool inverted;
+    Material material;
+};
+
+void sphereIntersection(inout Collision current, Ray ray, Sphere sphere) {
+    vec3 oc = ray.origin - sphere.center;
+    float b = dot(oc, ray.direction);
+    if (b > 0.0 && !sphere.inverted) return;
+    float c = dot(oc, oc) - sphere.radius * sphere.radius;
+    if (c < 0.0 && !sphere.inverted) return;
+    float a = dot(ray.direction, ray.direction);
+    float d = b * b - a * c;
+    if (d < 0.0) return;
+
+    float t = (-b + (sphere.inverted ? 1.0 : -1.0) * sqrt(d)) / a;
+    if (t >= current.distance && current.distance >= 0.0) return;
+    current.distance = t;
+    vec3 hitPoint = ray.origin + t * ray.direction;
+    current.normal = (sphere.inverted ? -1.0 : 1.0) * (hitPoint - sphere.center) / sphere.radius;
+    current.material = sphere.material;
+}
+Collision sceneIntersection(Ray ray) {
+    Sphere[] spheres = Sphere[](
+        Sphere(vec3(0.0, -1.0, 10.0), 1.0, false, Material(vec3(0.0, 1.0, 1.0), vec3(0.0), 0u)),
+        Sphere(vec3(0.0, 1.0, 10.0), 1.0, false, Material(vec3(1.0, 1.0, 0.0), vec3(0.0), 0u)),
+        Sphere(vec3(2.0, 3.0, 8.0), 1.0, false, Material(vec3(0.0, 0.0, 0.0), vec3(0.1), 0u)),
+        Sphere(vec3(0.0, 0.0, 5.0), 5.1, true, Material(vec3(1.0, 1.0, 1.0), vec3(0.0), 0u))
+    );
+
+    Collision collision;
+    collision.distance = -1.0;
+    for (int i = 0; i < spheres.length(); i++) {
+        sphereIntersection(collision, ray, spheres[i]);
+    }
+
+    return collision;
+}
+
+vec3 hash(vec3 p) {
+    p = fract(p * vec3(0.1031, 0.1030, 0.0973));
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.xxy + p.yzz) * p.zyx);
+}
+vec3 int_hash(uvec3 x) {
+    x = ((x >> 8U) ^ x.yzx) * 1103515245U;
+    x = ((x >> 8U) ^ x.yzx) * 1103515245U;
+    x = ((x >> 8U) ^ x.yzx) * 1103515245U;
+    
+    return vec3(x) * (1.0 / float(0xffffffffU));
+}
+
+vec3 BRDF_randomDirection(uint id, vec3 incoming_dir, vec3 normal, inout vec3 seed) {
+    if (id == 0u) {
+        // lambertian diffuse
+        vec3 v = vec3(1.0);
+        for (int i = 0; length(v) > 1.0 || length(v) == 0.0; i++) {
+            vec3 h = seed = hash(seed - vec3(i + 1));
+            v = h * 2.0 - vec3(1.0);
+        }
+        if (dot(v, normal) < 0.0) {
+            v = -v;
+        }
+        return v;
+    } else if (id == 1u) {
+        return reflect(incoming_dir, normal);
+    }
+}
+
+float colorCorrection(float intensity) {
+    return intensity <= 0.0031308 ? 12.92 * intensity : 1.055 * pow(intensity, 1.0 / 2.4) - 0.055;
+}
+
+uniform mat4 u_invViewMatrix;
+uniform int u_frame;
+uniform sampler2D u_lastFrame;
+uniform bool u_render;
+uniform vec2 u_screenSize;
+uniform vec2 u_resolution;
+
+out vec4 outColor;
+void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution;
+    if (u_render) {
+        float[] kernel = float[](
+            0.0625, 0.125 , 0.0625,
+            0.125 , 0.25  , 0.125 ,
+            0.0625, 0.125 , 0.0625
+        );
+        outColor = vec4(0.0, 0.0, 0.0, 1.0);
+        for (int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+                vec2 offset = vec2(float(x), float(y)) / u_resolution;
+                vec3 pixel = texture(u_lastFrame, uv + offset).rgb;
+                outColor.rgb += pixel * kernel[(y + 1) * 3 + (x + 1)];
+            }
+        }
+        outColor /= float(u_frame + 1);
+        // outColor = texture(u_lastFrame, uv) / float(u_frame + 1);
+        outColor = vec4(colorCorrection(outColor.r), colorCorrection(outColor.g), colorCorrection(outColor.b), 1.0);
+        return;
+    }
+
+    vec3 seed = int_hash(uvec3(gl_FragCoord.xy, u_frame));
+    // outColor.rgb = seed;
+    // outColor.a = 1.0;
+    // return;
+
+    vec3 pixelLocation = vec3(u_screenSize * (uv - vec2(0.5)), 1.0);
+    pixelLocation.xy += ((seed = hash(seed)).xy - vec2(0.5)) * u_screenSize / u_resolution;
+    vec4 origin = u_invViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 direction = u_invViewMatrix * vec4(normalize(pixelLocation), 0.0);
+    Ray ray = Ray(origin.xyz, direction.xyz);
+
+    vec3 color = vec3(0.0);
+    vec3 contribution = vec3(1.0);
+    for (int i = 0; i < 5; i++) {
+        Collision collision = sceneIntersection(ray);
+        vec3 hitPoint = ray.origin + ray.direction * collision.distance + collision.normal * 1e-5;
+        if (collision.distance < 0.0) break;
+
+        color += contribution * collision.material.emissivity;
+        contribution *= collision.material.albedo;
+        if (contribution == vec3(0.0)) break;
+
+        vec3 original_direction = ray.direction;
+
+        ray.origin = hitPoint;
+        ray.direction = BRDF_randomDirection(collision.material.BRDFid, ray.direction, collision.normal, seed);
+        seed = hash(seed);
+        if (dot(ray.direction, collision.normal) < 0.0) {
+            ray.direction = -ray.direction;
+        }
+        contribution *= dot(ray.direction, collision.normal) / dot(-original_direction, collision.normal);
+    }
+
+    if (u_frame == 0) {
+        outColor = vec4(color, 1.0);
+        return;
+    }
+    outColor.rgb = texture(u_lastFrame, uv).rgb + color;
+    outColor.a = 1.0;
+}
+`;
+
+// src/raytracing/vertex.glsl
+var vertex_default = `#version 300 es
+precision highp float;
+
+in vec2 a_position;
+
+void main() {
+    gl_Position = vec4(a_position, 0, 1);
+}
+`;
+
+// node_modules/gl-matrix/esm/common.js
+var EPSILON = 1e-6;
+var ARRAY_TYPE = typeof Float32Array !== "undefined" ? Float32Array : Array;
+var RANDOM = Math.random;
+function round(a) {
+  if (a >= 0) return Math.round(a);
+  return a % 0.5 === 0 ? Math.floor(a) : Math.round(a);
+}
+var degree = Math.PI / 180;
+var radian = 180 / Math.PI;
+
+// node_modules/gl-matrix/esm/mat4.js
+var mat4_exports = {};
+__export(mat4_exports, {
+  add: () => add,
+  adjoint: () => adjoint,
+  clone: () => clone,
+  copy: () => copy,
+  create: () => create,
+  decompose: () => decompose,
+  determinant: () => determinant,
+  equals: () => equals,
+  exactEquals: () => exactEquals,
+  frob: () => frob,
+  fromQuat: () => fromQuat,
+  fromQuat2: () => fromQuat2,
+  fromRotation: () => fromRotation,
+  fromRotationTranslation: () => fromRotationTranslation,
+  fromRotationTranslationScale: () => fromRotationTranslationScale,
+  fromRotationTranslationScaleOrigin: () => fromRotationTranslationScaleOrigin,
+  fromScaling: () => fromScaling,
+  fromTranslation: () => fromTranslation,
+  fromValues: () => fromValues,
+  fromXRotation: () => fromXRotation,
+  fromYRotation: () => fromYRotation,
+  fromZRotation: () => fromZRotation,
+  frustum: () => frustum,
+  getRotation: () => getRotation,
+  getScaling: () => getScaling,
+  getTranslation: () => getTranslation,
+  identity: () => identity,
+  invert: () => invert,
+  lookAt: () => lookAt,
+  mul: () => mul,
+  multiply: () => multiply,
+  multiplyScalar: () => multiplyScalar,
+  multiplyScalarAndAdd: () => multiplyScalarAndAdd,
+  ortho: () => ortho,
+  orthoNO: () => orthoNO,
+  orthoZO: () => orthoZO,
+  perspective: () => perspective,
+  perspectiveFromFieldOfView: () => perspectiveFromFieldOfView,
+  perspectiveNO: () => perspectiveNO,
+  perspectiveZO: () => perspectiveZO,
+  rotate: () => rotate,
+  rotateX: () => rotateX,
+  rotateY: () => rotateY,
+  rotateZ: () => rotateZ,
+  scale: () => scale,
+  set: () => set,
+  str: () => str,
+  sub: () => sub,
+  subtract: () => subtract,
+  targetTo: () => targetTo,
+  translate: () => translate,
+  transpose: () => transpose
+});
+function create() {
+  var out = new ARRAY_TYPE(16);
+  if (ARRAY_TYPE != Float32Array) {
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+  }
+  out[0] = 1;
+  out[5] = 1;
+  out[10] = 1;
+  out[15] = 1;
+  return out;
+}
+function clone(a) {
+  var out = new ARRAY_TYPE(16);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  out[4] = a[4];
+  out[5] = a[5];
+  out[6] = a[6];
+  out[7] = a[7];
+  out[8] = a[8];
+  out[9] = a[9];
+  out[10] = a[10];
+  out[11] = a[11];
+  out[12] = a[12];
+  out[13] = a[13];
+  out[14] = a[14];
+  out[15] = a[15];
+  return out;
+}
+function copy(out, a) {
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  out[4] = a[4];
+  out[5] = a[5];
+  out[6] = a[6];
+  out[7] = a[7];
+  out[8] = a[8];
+  out[9] = a[9];
+  out[10] = a[10];
+  out[11] = a[11];
+  out[12] = a[12];
+  out[13] = a[13];
+  out[14] = a[14];
+  out[15] = a[15];
+  return out;
+}
+function fromValues(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+  var out = new ARRAY_TYPE(16);
+  out[0] = m00;
+  out[1] = m01;
+  out[2] = m02;
+  out[3] = m03;
+  out[4] = m10;
+  out[5] = m11;
+  out[6] = m12;
+  out[7] = m13;
+  out[8] = m20;
+  out[9] = m21;
+  out[10] = m22;
+  out[11] = m23;
+  out[12] = m30;
+  out[13] = m31;
+  out[14] = m32;
+  out[15] = m33;
+  return out;
+}
+function set(out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+  out[0] = m00;
+  out[1] = m01;
+  out[2] = m02;
+  out[3] = m03;
+  out[4] = m10;
+  out[5] = m11;
+  out[6] = m12;
+  out[7] = m13;
+  out[8] = m20;
+  out[9] = m21;
+  out[10] = m22;
+  out[11] = m23;
+  out[12] = m30;
+  out[13] = m31;
+  out[14] = m32;
+  out[15] = m33;
+  return out;
+}
+function identity(out) {
+  out[0] = 1;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = 1;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = 1;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+function transpose(out, a) {
+  if (out === a) {
+    var a01 = a[1], a02 = a[2], a03 = a[3];
+    var a12 = a[6], a13 = a[7];
+    var a23 = a[11];
+    out[1] = a[4];
+    out[2] = a[8];
+    out[3] = a[12];
+    out[4] = a01;
+    out[6] = a[9];
+    out[7] = a[13];
+    out[8] = a02;
+    out[9] = a12;
+    out[11] = a[14];
+    out[12] = a03;
+    out[13] = a13;
+    out[14] = a23;
+  } else {
+    out[0] = a[0];
+    out[1] = a[4];
+    out[2] = a[8];
+    out[3] = a[12];
+    out[4] = a[1];
+    out[5] = a[5];
+    out[6] = a[9];
+    out[7] = a[13];
+    out[8] = a[2];
+    out[9] = a[6];
+    out[10] = a[10];
+    out[11] = a[14];
+    out[12] = a[3];
+    out[13] = a[7];
+    out[14] = a[11];
+    out[15] = a[15];
+  }
+  return out;
+}
+function invert(out, a) {
+  var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+  var a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+  var a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+  var a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+  var b00 = a00 * a11 - a01 * a10;
+  var b01 = a00 * a12 - a02 * a10;
+  var b02 = a00 * a13 - a03 * a10;
+  var b03 = a01 * a12 - a02 * a11;
+  var b04 = a01 * a13 - a03 * a11;
+  var b05 = a02 * a13 - a03 * a12;
+  var b06 = a20 * a31 - a21 * a30;
+  var b07 = a20 * a32 - a22 * a30;
+  var b08 = a20 * a33 - a23 * a30;
+  var b09 = a21 * a32 - a22 * a31;
+  var b10 = a21 * a33 - a23 * a31;
+  var b11 = a22 * a33 - a23 * a32;
+  var det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+  if (!det) {
+    return null;
+  }
+  det = 1 / det;
+  out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+  out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+  out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+  out[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+  out[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+  out[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+  out[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+  out[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+  out[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+  out[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+  out[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+  out[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+  out[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+  out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+  out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+  out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+  return out;
+}
+function adjoint(out, a) {
+  var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+  var a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+  var a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+  var a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+  var b00 = a00 * a11 - a01 * a10;
+  var b01 = a00 * a12 - a02 * a10;
+  var b02 = a00 * a13 - a03 * a10;
+  var b03 = a01 * a12 - a02 * a11;
+  var b04 = a01 * a13 - a03 * a11;
+  var b05 = a02 * a13 - a03 * a12;
+  var b06 = a20 * a31 - a21 * a30;
+  var b07 = a20 * a32 - a22 * a30;
+  var b08 = a20 * a33 - a23 * a30;
+  var b09 = a21 * a32 - a22 * a31;
+  var b10 = a21 * a33 - a23 * a31;
+  var b11 = a22 * a33 - a23 * a32;
+  out[0] = a11 * b11 - a12 * b10 + a13 * b09;
+  out[1] = a02 * b10 - a01 * b11 - a03 * b09;
+  out[2] = a31 * b05 - a32 * b04 + a33 * b03;
+  out[3] = a22 * b04 - a21 * b05 - a23 * b03;
+  out[4] = a12 * b08 - a10 * b11 - a13 * b07;
+  out[5] = a00 * b11 - a02 * b08 + a03 * b07;
+  out[6] = a32 * b02 - a30 * b05 - a33 * b01;
+  out[7] = a20 * b05 - a22 * b02 + a23 * b01;
+  out[8] = a10 * b10 - a11 * b08 + a13 * b06;
+  out[9] = a01 * b08 - a00 * b10 - a03 * b06;
+  out[10] = a30 * b04 - a31 * b02 + a33 * b00;
+  out[11] = a21 * b02 - a20 * b04 - a23 * b00;
+  out[12] = a11 * b07 - a10 * b09 - a12 * b06;
+  out[13] = a00 * b09 - a01 * b07 + a02 * b06;
+  out[14] = a31 * b01 - a30 * b03 - a32 * b00;
+  out[15] = a20 * b03 - a21 * b01 + a22 * b00;
+  return out;
+}
+function determinant(a) {
+  var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+  var a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+  var a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+  var a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+  var b0 = a00 * a11 - a01 * a10;
+  var b1 = a00 * a12 - a02 * a10;
+  var b2 = a01 * a12 - a02 * a11;
+  var b3 = a20 * a31 - a21 * a30;
+  var b4 = a20 * a32 - a22 * a30;
+  var b5 = a21 * a32 - a22 * a31;
+  var b6 = a00 * b5 - a01 * b4 + a02 * b3;
+  var b7 = a10 * b5 - a11 * b4 + a12 * b3;
+  var b8 = a20 * b2 - a21 * b1 + a22 * b0;
+  var b9 = a30 * b2 - a31 * b1 + a32 * b0;
+  return a13 * b6 - a03 * b7 + a33 * b8 - a23 * b9;
+}
+function multiply(out, a, b) {
+  var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+  var a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+  var a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+  var a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+  var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+  out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+  b0 = b[4];
+  b1 = b[5];
+  b2 = b[6];
+  b3 = b[7];
+  out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+  b0 = b[8];
+  b1 = b[9];
+  b2 = b[10];
+  b3 = b[11];
+  out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+  b0 = b[12];
+  b1 = b[13];
+  b2 = b[14];
+  b3 = b[15];
+  out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+  return out;
+}
+function translate(out, a, v) {
+  var x = v[0], y = v[1], z = v[2];
+  var a00, a01, a02, a03;
+  var a10, a11, a12, a13;
+  var a20, a21, a22, a23;
+  if (a === out) {
+    out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
+    out[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
+    out[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
+    out[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
+  } else {
+    a00 = a[0];
+    a01 = a[1];
+    a02 = a[2];
+    a03 = a[3];
+    a10 = a[4];
+    a11 = a[5];
+    a12 = a[6];
+    a13 = a[7];
+    a20 = a[8];
+    a21 = a[9];
+    a22 = a[10];
+    a23 = a[11];
+    out[0] = a00;
+    out[1] = a01;
+    out[2] = a02;
+    out[3] = a03;
+    out[4] = a10;
+    out[5] = a11;
+    out[6] = a12;
+    out[7] = a13;
+    out[8] = a20;
+    out[9] = a21;
+    out[10] = a22;
+    out[11] = a23;
+    out[12] = a00 * x + a10 * y + a20 * z + a[12];
+    out[13] = a01 * x + a11 * y + a21 * z + a[13];
+    out[14] = a02 * x + a12 * y + a22 * z + a[14];
+    out[15] = a03 * x + a13 * y + a23 * z + a[15];
+  }
+  return out;
+}
+function scale(out, a, v) {
+  var x = v[0], y = v[1], z = v[2];
+  out[0] = a[0] * x;
+  out[1] = a[1] * x;
+  out[2] = a[2] * x;
+  out[3] = a[3] * x;
+  out[4] = a[4] * y;
+  out[5] = a[5] * y;
+  out[6] = a[6] * y;
+  out[7] = a[7] * y;
+  out[8] = a[8] * z;
+  out[9] = a[9] * z;
+  out[10] = a[10] * z;
+  out[11] = a[11] * z;
+  out[12] = a[12];
+  out[13] = a[13];
+  out[14] = a[14];
+  out[15] = a[15];
+  return out;
+}
+function rotate(out, a, rad, axis) {
+  var x = axis[0], y = axis[1], z = axis[2];
+  var len2 = Math.sqrt(x * x + y * y + z * z);
+  var s, c, t;
+  var a00, a01, a02, a03;
+  var a10, a11, a12, a13;
+  var a20, a21, a22, a23;
+  var b00, b01, b02;
+  var b10, b11, b12;
+  var b20, b21, b22;
+  if (len2 < EPSILON) {
+    return null;
+  }
+  len2 = 1 / len2;
+  x *= len2;
+  y *= len2;
+  z *= len2;
+  s = Math.sin(rad);
+  c = Math.cos(rad);
+  t = 1 - c;
+  a00 = a[0];
+  a01 = a[1];
+  a02 = a[2];
+  a03 = a[3];
+  a10 = a[4];
+  a11 = a[5];
+  a12 = a[6];
+  a13 = a[7];
+  a20 = a[8];
+  a21 = a[9];
+  a22 = a[10];
+  a23 = a[11];
+  b00 = x * x * t + c;
+  b01 = y * x * t + z * s;
+  b02 = z * x * t - y * s;
+  b10 = x * y * t - z * s;
+  b11 = y * y * t + c;
+  b12 = z * y * t + x * s;
+  b20 = x * z * t + y * s;
+  b21 = y * z * t - x * s;
+  b22 = z * z * t + c;
+  out[0] = a00 * b00 + a10 * b01 + a20 * b02;
+  out[1] = a01 * b00 + a11 * b01 + a21 * b02;
+  out[2] = a02 * b00 + a12 * b01 + a22 * b02;
+  out[3] = a03 * b00 + a13 * b01 + a23 * b02;
+  out[4] = a00 * b10 + a10 * b11 + a20 * b12;
+  out[5] = a01 * b10 + a11 * b11 + a21 * b12;
+  out[6] = a02 * b10 + a12 * b11 + a22 * b12;
+  out[7] = a03 * b10 + a13 * b11 + a23 * b12;
+  out[8] = a00 * b20 + a10 * b21 + a20 * b22;
+  out[9] = a01 * b20 + a11 * b21 + a21 * b22;
+  out[10] = a02 * b20 + a12 * b21 + a22 * b22;
+  out[11] = a03 * b20 + a13 * b21 + a23 * b22;
+  if (a !== out) {
+    out[12] = a[12];
+    out[13] = a[13];
+    out[14] = a[14];
+    out[15] = a[15];
+  }
+  return out;
+}
+function rotateX(out, a, rad) {
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  var a10 = a[4];
+  var a11 = a[5];
+  var a12 = a[6];
+  var a13 = a[7];
+  var a20 = a[8];
+  var a21 = a[9];
+  var a22 = a[10];
+  var a23 = a[11];
+  if (a !== out) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    out[12] = a[12];
+    out[13] = a[13];
+    out[14] = a[14];
+    out[15] = a[15];
+  }
+  out[4] = a10 * c + a20 * s;
+  out[5] = a11 * c + a21 * s;
+  out[6] = a12 * c + a22 * s;
+  out[7] = a13 * c + a23 * s;
+  out[8] = a20 * c - a10 * s;
+  out[9] = a21 * c - a11 * s;
+  out[10] = a22 * c - a12 * s;
+  out[11] = a23 * c - a13 * s;
+  return out;
+}
+function rotateY(out, a, rad) {
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  var a00 = a[0];
+  var a01 = a[1];
+  var a02 = a[2];
+  var a03 = a[3];
+  var a20 = a[8];
+  var a21 = a[9];
+  var a22 = a[10];
+  var a23 = a[11];
+  if (a !== out) {
+    out[4] = a[4];
+    out[5] = a[5];
+    out[6] = a[6];
+    out[7] = a[7];
+    out[12] = a[12];
+    out[13] = a[13];
+    out[14] = a[14];
+    out[15] = a[15];
+  }
+  out[0] = a00 * c - a20 * s;
+  out[1] = a01 * c - a21 * s;
+  out[2] = a02 * c - a22 * s;
+  out[3] = a03 * c - a23 * s;
+  out[8] = a00 * s + a20 * c;
+  out[9] = a01 * s + a21 * c;
+  out[10] = a02 * s + a22 * c;
+  out[11] = a03 * s + a23 * c;
+  return out;
+}
+function rotateZ(out, a, rad) {
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  var a00 = a[0];
+  var a01 = a[1];
+  var a02 = a[2];
+  var a03 = a[3];
+  var a10 = a[4];
+  var a11 = a[5];
+  var a12 = a[6];
+  var a13 = a[7];
+  if (a !== out) {
+    out[8] = a[8];
+    out[9] = a[9];
+    out[10] = a[10];
+    out[11] = a[11];
+    out[12] = a[12];
+    out[13] = a[13];
+    out[14] = a[14];
+    out[15] = a[15];
+  }
+  out[0] = a00 * c + a10 * s;
+  out[1] = a01 * c + a11 * s;
+  out[2] = a02 * c + a12 * s;
+  out[3] = a03 * c + a13 * s;
+  out[4] = a10 * c - a00 * s;
+  out[5] = a11 * c - a01 * s;
+  out[6] = a12 * c - a02 * s;
+  out[7] = a13 * c - a03 * s;
+  return out;
+}
+function fromTranslation(out, v) {
+  out[0] = 1;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = 1;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = 1;
+  out[11] = 0;
+  out[12] = v[0];
+  out[13] = v[1];
+  out[14] = v[2];
+  out[15] = 1;
+  return out;
+}
+function fromScaling(out, v) {
+  out[0] = v[0];
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = v[1];
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = v[2];
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+function fromRotation(out, rad, axis) {
+  var x = axis[0], y = axis[1], z = axis[2];
+  var len2 = Math.sqrt(x * x + y * y + z * z);
+  var s, c, t;
+  if (len2 < EPSILON) {
+    return null;
+  }
+  len2 = 1 / len2;
+  x *= len2;
+  y *= len2;
+  z *= len2;
+  s = Math.sin(rad);
+  c = Math.cos(rad);
+  t = 1 - c;
+  out[0] = x * x * t + c;
+  out[1] = y * x * t + z * s;
+  out[2] = z * x * t - y * s;
+  out[3] = 0;
+  out[4] = x * y * t - z * s;
+  out[5] = y * y * t + c;
+  out[6] = z * y * t + x * s;
+  out[7] = 0;
+  out[8] = x * z * t + y * s;
+  out[9] = y * z * t - x * s;
+  out[10] = z * z * t + c;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+function fromXRotation(out, rad) {
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  out[0] = 1;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = c;
+  out[6] = s;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = -s;
+  out[10] = c;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+function fromYRotation(out, rad) {
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  out[0] = c;
+  out[1] = 0;
+  out[2] = -s;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = 1;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = s;
+  out[9] = 0;
+  out[10] = c;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+function fromZRotation(out, rad) {
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  out[0] = c;
+  out[1] = s;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = -s;
+  out[5] = c;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = 1;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+function fromRotationTranslation(out, q, v) {
+  var x = q[0], y = q[1], z = q[2], w = q[3];
+  var x2 = x + x;
+  var y2 = y + y;
+  var z2 = z + z;
+  var xx = x * x2;
+  var xy = x * y2;
+  var xz = x * z2;
+  var yy = y * y2;
+  var yz = y * z2;
+  var zz = z * z2;
+  var wx = w * x2;
+  var wy = w * y2;
+  var wz = w * z2;
+  out[0] = 1 - (yy + zz);
+  out[1] = xy + wz;
+  out[2] = xz - wy;
+  out[3] = 0;
+  out[4] = xy - wz;
+  out[5] = 1 - (xx + zz);
+  out[6] = yz + wx;
+  out[7] = 0;
+  out[8] = xz + wy;
+  out[9] = yz - wx;
+  out[10] = 1 - (xx + yy);
+  out[11] = 0;
+  out[12] = v[0];
+  out[13] = v[1];
+  out[14] = v[2];
+  out[15] = 1;
+  return out;
+}
+function fromQuat2(out, a) {
+  var translation = new ARRAY_TYPE(3);
+  var bx = -a[0], by = -a[1], bz = -a[2], bw = a[3], ax = a[4], ay = a[5], az = a[6], aw = a[7];
+  var magnitude = bx * bx + by * by + bz * bz + bw * bw;
+  if (magnitude > 0) {
+    translation[0] = (ax * bw + aw * bx + ay * bz - az * by) * 2 / magnitude;
+    translation[1] = (ay * bw + aw * by + az * bx - ax * bz) * 2 / magnitude;
+    translation[2] = (az * bw + aw * bz + ax * by - ay * bx) * 2 / magnitude;
+  } else {
+    translation[0] = (ax * bw + aw * bx + ay * bz - az * by) * 2;
+    translation[1] = (ay * bw + aw * by + az * bx - ax * bz) * 2;
+    translation[2] = (az * bw + aw * bz + ax * by - ay * bx) * 2;
+  }
+  fromRotationTranslation(out, a, translation);
+  return out;
+}
+function getTranslation(out, mat) {
+  out[0] = mat[12];
+  out[1] = mat[13];
+  out[2] = mat[14];
+  return out;
+}
+function getScaling(out, mat) {
+  var m11 = mat[0];
+  var m12 = mat[1];
+  var m13 = mat[2];
+  var m21 = mat[4];
+  var m22 = mat[5];
+  var m23 = mat[6];
+  var m31 = mat[8];
+  var m32 = mat[9];
+  var m33 = mat[10];
+  out[0] = Math.sqrt(m11 * m11 + m12 * m12 + m13 * m13);
+  out[1] = Math.sqrt(m21 * m21 + m22 * m22 + m23 * m23);
+  out[2] = Math.sqrt(m31 * m31 + m32 * m32 + m33 * m33);
+  return out;
+}
+function getRotation(out, mat) {
+  var scaling = new ARRAY_TYPE(3);
+  getScaling(scaling, mat);
+  var is1 = 1 / scaling[0];
+  var is2 = 1 / scaling[1];
+  var is3 = 1 / scaling[2];
+  var sm11 = mat[0] * is1;
+  var sm12 = mat[1] * is2;
+  var sm13 = mat[2] * is3;
+  var sm21 = mat[4] * is1;
+  var sm22 = mat[5] * is2;
+  var sm23 = mat[6] * is3;
+  var sm31 = mat[8] * is1;
+  var sm32 = mat[9] * is2;
+  var sm33 = mat[10] * is3;
+  var trace = sm11 + sm22 + sm33;
+  var S = 0;
+  if (trace > 0) {
+    S = Math.sqrt(trace + 1) * 2;
+    out[3] = 0.25 * S;
+    out[0] = (sm23 - sm32) / S;
+    out[1] = (sm31 - sm13) / S;
+    out[2] = (sm12 - sm21) / S;
+  } else if (sm11 > sm22 && sm11 > sm33) {
+    S = Math.sqrt(1 + sm11 - sm22 - sm33) * 2;
+    out[3] = (sm23 - sm32) / S;
+    out[0] = 0.25 * S;
+    out[1] = (sm12 + sm21) / S;
+    out[2] = (sm31 + sm13) / S;
+  } else if (sm22 > sm33) {
+    S = Math.sqrt(1 + sm22 - sm11 - sm33) * 2;
+    out[3] = (sm31 - sm13) / S;
+    out[0] = (sm12 + sm21) / S;
+    out[1] = 0.25 * S;
+    out[2] = (sm23 + sm32) / S;
+  } else {
+    S = Math.sqrt(1 + sm33 - sm11 - sm22) * 2;
+    out[3] = (sm12 - sm21) / S;
+    out[0] = (sm31 + sm13) / S;
+    out[1] = (sm23 + sm32) / S;
+    out[2] = 0.25 * S;
+  }
+  return out;
+}
+function decompose(out_r, out_t, out_s, mat) {
+  out_t[0] = mat[12];
+  out_t[1] = mat[13];
+  out_t[2] = mat[14];
+  var m11 = mat[0];
+  var m12 = mat[1];
+  var m13 = mat[2];
+  var m21 = mat[4];
+  var m22 = mat[5];
+  var m23 = mat[6];
+  var m31 = mat[8];
+  var m32 = mat[9];
+  var m33 = mat[10];
+  out_s[0] = Math.sqrt(m11 * m11 + m12 * m12 + m13 * m13);
+  out_s[1] = Math.sqrt(m21 * m21 + m22 * m22 + m23 * m23);
+  out_s[2] = Math.sqrt(m31 * m31 + m32 * m32 + m33 * m33);
+  var is1 = 1 / out_s[0];
+  var is2 = 1 / out_s[1];
+  var is3 = 1 / out_s[2];
+  var sm11 = m11 * is1;
+  var sm12 = m12 * is2;
+  var sm13 = m13 * is3;
+  var sm21 = m21 * is1;
+  var sm22 = m22 * is2;
+  var sm23 = m23 * is3;
+  var sm31 = m31 * is1;
+  var sm32 = m32 * is2;
+  var sm33 = m33 * is3;
+  var trace = sm11 + sm22 + sm33;
+  var S = 0;
+  if (trace > 0) {
+    S = Math.sqrt(trace + 1) * 2;
+    out_r[3] = 0.25 * S;
+    out_r[0] = (sm23 - sm32) / S;
+    out_r[1] = (sm31 - sm13) / S;
+    out_r[2] = (sm12 - sm21) / S;
+  } else if (sm11 > sm22 && sm11 > sm33) {
+    S = Math.sqrt(1 + sm11 - sm22 - sm33) * 2;
+    out_r[3] = (sm23 - sm32) / S;
+    out_r[0] = 0.25 * S;
+    out_r[1] = (sm12 + sm21) / S;
+    out_r[2] = (sm31 + sm13) / S;
+  } else if (sm22 > sm33) {
+    S = Math.sqrt(1 + sm22 - sm11 - sm33) * 2;
+    out_r[3] = (sm31 - sm13) / S;
+    out_r[0] = (sm12 + sm21) / S;
+    out_r[1] = 0.25 * S;
+    out_r[2] = (sm23 + sm32) / S;
+  } else {
+    S = Math.sqrt(1 + sm33 - sm11 - sm22) * 2;
+    out_r[3] = (sm12 - sm21) / S;
+    out_r[0] = (sm31 + sm13) / S;
+    out_r[1] = (sm23 + sm32) / S;
+    out_r[2] = 0.25 * S;
+  }
+  return out_r;
+}
+function fromRotationTranslationScale(out, q, v, s) {
+  var x = q[0], y = q[1], z = q[2], w = q[3];
+  var x2 = x + x;
+  var y2 = y + y;
+  var z2 = z + z;
+  var xx = x * x2;
+  var xy = x * y2;
+  var xz = x * z2;
+  var yy = y * y2;
+  var yz = y * z2;
+  var zz = z * z2;
+  var wx = w * x2;
+  var wy = w * y2;
+  var wz = w * z2;
+  var sx = s[0];
+  var sy = s[1];
+  var sz = s[2];
+  out[0] = (1 - (yy + zz)) * sx;
+  out[1] = (xy + wz) * sx;
+  out[2] = (xz - wy) * sx;
+  out[3] = 0;
+  out[4] = (xy - wz) * sy;
+  out[5] = (1 - (xx + zz)) * sy;
+  out[6] = (yz + wx) * sy;
+  out[7] = 0;
+  out[8] = (xz + wy) * sz;
+  out[9] = (yz - wx) * sz;
+  out[10] = (1 - (xx + yy)) * sz;
+  out[11] = 0;
+  out[12] = v[0];
+  out[13] = v[1];
+  out[14] = v[2];
+  out[15] = 1;
+  return out;
+}
+function fromRotationTranslationScaleOrigin(out, q, v, s, o) {
+  var x = q[0], y = q[1], z = q[2], w = q[3];
+  var x2 = x + x;
+  var y2 = y + y;
+  var z2 = z + z;
+  var xx = x * x2;
+  var xy = x * y2;
+  var xz = x * z2;
+  var yy = y * y2;
+  var yz = y * z2;
+  var zz = z * z2;
+  var wx = w * x2;
+  var wy = w * y2;
+  var wz = w * z2;
+  var sx = s[0];
+  var sy = s[1];
+  var sz = s[2];
+  var ox = o[0];
+  var oy = o[1];
+  var oz = o[2];
+  var out0 = (1 - (yy + zz)) * sx;
+  var out1 = (xy + wz) * sx;
+  var out2 = (xz - wy) * sx;
+  var out4 = (xy - wz) * sy;
+  var out5 = (1 - (xx + zz)) * sy;
+  var out6 = (yz + wx) * sy;
+  var out8 = (xz + wy) * sz;
+  var out9 = (yz - wx) * sz;
+  var out10 = (1 - (xx + yy)) * sz;
+  out[0] = out0;
+  out[1] = out1;
+  out[2] = out2;
+  out[3] = 0;
+  out[4] = out4;
+  out[5] = out5;
+  out[6] = out6;
+  out[7] = 0;
+  out[8] = out8;
+  out[9] = out9;
+  out[10] = out10;
+  out[11] = 0;
+  out[12] = v[0] + ox - (out0 * ox + out4 * oy + out8 * oz);
+  out[13] = v[1] + oy - (out1 * ox + out5 * oy + out9 * oz);
+  out[14] = v[2] + oz - (out2 * ox + out6 * oy + out10 * oz);
+  out[15] = 1;
+  return out;
+}
+function fromQuat(out, q) {
+  var x = q[0], y = q[1], z = q[2], w = q[3];
+  var x2 = x + x;
+  var y2 = y + y;
+  var z2 = z + z;
+  var xx = x * x2;
+  var yx = y * x2;
+  var yy = y * y2;
+  var zx = z * x2;
+  var zy = z * y2;
+  var zz = z * z2;
+  var wx = w * x2;
+  var wy = w * y2;
+  var wz = w * z2;
+  out[0] = 1 - yy - zz;
+  out[1] = yx + wz;
+  out[2] = zx - wy;
+  out[3] = 0;
+  out[4] = yx - wz;
+  out[5] = 1 - xx - zz;
+  out[6] = zy + wx;
+  out[7] = 0;
+  out[8] = zx + wy;
+  out[9] = zy - wx;
+  out[10] = 1 - xx - yy;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+function frustum(out, left, right, bottom, top, near, far) {
+  var rl = 1 / (right - left);
+  var tb = 1 / (top - bottom);
+  var nf = 1 / (near - far);
+  out[0] = near * 2 * rl;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = near * 2 * tb;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = (right + left) * rl;
+  out[9] = (top + bottom) * tb;
+  out[10] = (far + near) * nf;
+  out[11] = -1;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = far * near * 2 * nf;
+  out[15] = 0;
+  return out;
+}
+function perspectiveNO(out, fovy, aspect, near, far) {
+  var f = 1 / Math.tan(fovy / 2);
+  out[0] = f / aspect;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = f;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[11] = -1;
+  out[12] = 0;
+  out[13] = 0;
+  out[15] = 0;
+  if (far != null && far !== Infinity) {
+    var nf = 1 / (near - far);
+    out[10] = (far + near) * nf;
+    out[14] = 2 * far * near * nf;
+  } else {
+    out[10] = -1;
+    out[14] = -2 * near;
+  }
+  return out;
+}
+var perspective = perspectiveNO;
+function perspectiveZO(out, fovy, aspect, near, far) {
+  var f = 1 / Math.tan(fovy / 2);
+  out[0] = f / aspect;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = f;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[11] = -1;
+  out[12] = 0;
+  out[13] = 0;
+  out[15] = 0;
+  if (far != null && far !== Infinity) {
+    var nf = 1 / (near - far);
+    out[10] = far * nf;
+    out[14] = far * near * nf;
+  } else {
+    out[10] = -1;
+    out[14] = -near;
+  }
+  return out;
+}
+function perspectiveFromFieldOfView(out, fov, near, far) {
+  var upTan = Math.tan(fov.upDegrees * Math.PI / 180);
+  var downTan = Math.tan(fov.downDegrees * Math.PI / 180);
+  var leftTan = Math.tan(fov.leftDegrees * Math.PI / 180);
+  var rightTan = Math.tan(fov.rightDegrees * Math.PI / 180);
+  var xScale = 2 / (leftTan + rightTan);
+  var yScale = 2 / (upTan + downTan);
+  out[0] = xScale;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = yScale;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = -((leftTan - rightTan) * xScale * 0.5);
+  out[9] = (upTan - downTan) * yScale * 0.5;
+  out[10] = far / (near - far);
+  out[11] = -1;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = far * near / (near - far);
+  out[15] = 0;
+  return out;
+}
+function orthoNO(out, left, right, bottom, top, near, far) {
+  var lr = 1 / (left - right);
+  var bt = 1 / (bottom - top);
+  var nf = 1 / (near - far);
+  out[0] = -2 * lr;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = -2 * bt;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = 2 * nf;
+  out[11] = 0;
+  out[12] = (left + right) * lr;
+  out[13] = (top + bottom) * bt;
+  out[14] = (far + near) * nf;
+  out[15] = 1;
+  return out;
+}
+var ortho = orthoNO;
+function orthoZO(out, left, right, bottom, top, near, far) {
+  var lr = 1 / (left - right);
+  var bt = 1 / (bottom - top);
+  var nf = 1 / (near - far);
+  out[0] = -2 * lr;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = -2 * bt;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = nf;
+  out[11] = 0;
+  out[12] = (left + right) * lr;
+  out[13] = (top + bottom) * bt;
+  out[14] = near * nf;
+  out[15] = 1;
+  return out;
+}
+function lookAt(out, eye, center, up) {
+  var x0, x1, x2, y0, y1, y2, z0, z1, z2, len2;
+  var eyex = eye[0];
+  var eyey = eye[1];
+  var eyez = eye[2];
+  var upx = up[0];
+  var upy = up[1];
+  var upz = up[2];
+  var centerx = center[0];
+  var centery = center[1];
+  var centerz = center[2];
+  if (Math.abs(eyex - centerx) < EPSILON && Math.abs(eyey - centery) < EPSILON && Math.abs(eyez - centerz) < EPSILON) {
+    return identity(out);
+  }
+  z0 = eyex - centerx;
+  z1 = eyey - centery;
+  z2 = eyez - centerz;
+  len2 = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+  z0 *= len2;
+  z1 *= len2;
+  z2 *= len2;
+  x0 = upy * z2 - upz * z1;
+  x1 = upz * z0 - upx * z2;
+  x2 = upx * z1 - upy * z0;
+  len2 = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+  if (!len2) {
+    x0 = 0;
+    x1 = 0;
+    x2 = 0;
+  } else {
+    len2 = 1 / len2;
+    x0 *= len2;
+    x1 *= len2;
+    x2 *= len2;
+  }
+  y0 = z1 * x2 - z2 * x1;
+  y1 = z2 * x0 - z0 * x2;
+  y2 = z0 * x1 - z1 * x0;
+  len2 = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+  if (!len2) {
+    y0 = 0;
+    y1 = 0;
+    y2 = 0;
+  } else {
+    len2 = 1 / len2;
+    y0 *= len2;
+    y1 *= len2;
+    y2 *= len2;
+  }
+  out[0] = x0;
+  out[1] = y0;
+  out[2] = z0;
+  out[3] = 0;
+  out[4] = x1;
+  out[5] = y1;
+  out[6] = z1;
+  out[7] = 0;
+  out[8] = x2;
+  out[9] = y2;
+  out[10] = z2;
+  out[11] = 0;
+  out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+  out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+  out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+  out[15] = 1;
+  return out;
+}
+function targetTo(out, eye, target, up) {
+  var eyex = eye[0], eyey = eye[1], eyez = eye[2], upx = up[0], upy = up[1], upz = up[2];
+  var z0 = eyex - target[0], z1 = eyey - target[1], z2 = eyez - target[2];
+  var len2 = z0 * z0 + z1 * z1 + z2 * z2;
+  if (len2 > 0) {
+    len2 = 1 / Math.sqrt(len2);
+    z0 *= len2;
+    z1 *= len2;
+    z2 *= len2;
+  }
+  var x0 = upy * z2 - upz * z1, x1 = upz * z0 - upx * z2, x2 = upx * z1 - upy * z0;
+  len2 = x0 * x0 + x1 * x1 + x2 * x2;
+  if (len2 > 0) {
+    len2 = 1 / Math.sqrt(len2);
+    x0 *= len2;
+    x1 *= len2;
+    x2 *= len2;
+  }
+  out[0] = x0;
+  out[1] = x1;
+  out[2] = x2;
+  out[3] = 0;
+  out[4] = z1 * x2 - z2 * x1;
+  out[5] = z2 * x0 - z0 * x2;
+  out[6] = z0 * x1 - z1 * x0;
+  out[7] = 0;
+  out[8] = z0;
+  out[9] = z1;
+  out[10] = z2;
+  out[11] = 0;
+  out[12] = eyex;
+  out[13] = eyey;
+  out[14] = eyez;
+  out[15] = 1;
+  return out;
+}
+function str(a) {
+  return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
+}
+function frob(a) {
+  return Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2] + a[3] * a[3] + a[4] * a[4] + a[5] * a[5] + a[6] * a[6] + a[7] * a[7] + a[8] * a[8] + a[9] * a[9] + a[10] * a[10] + a[11] * a[11] + a[12] * a[12] + a[13] * a[13] + a[14] * a[14] + a[15] * a[15]);
+}
+function add(out, a, b) {
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  out[2] = a[2] + b[2];
+  out[3] = a[3] + b[3];
+  out[4] = a[4] + b[4];
+  out[5] = a[5] + b[5];
+  out[6] = a[6] + b[6];
+  out[7] = a[7] + b[7];
+  out[8] = a[8] + b[8];
+  out[9] = a[9] + b[9];
+  out[10] = a[10] + b[10];
+  out[11] = a[11] + b[11];
+  out[12] = a[12] + b[12];
+  out[13] = a[13] + b[13];
+  out[14] = a[14] + b[14];
+  out[15] = a[15] + b[15];
+  return out;
+}
+function subtract(out, a, b) {
+  out[0] = a[0] - b[0];
+  out[1] = a[1] - b[1];
+  out[2] = a[2] - b[2];
+  out[3] = a[3] - b[3];
+  out[4] = a[4] - b[4];
+  out[5] = a[5] - b[5];
+  out[6] = a[6] - b[6];
+  out[7] = a[7] - b[7];
+  out[8] = a[8] - b[8];
+  out[9] = a[9] - b[9];
+  out[10] = a[10] - b[10];
+  out[11] = a[11] - b[11];
+  out[12] = a[12] - b[12];
+  out[13] = a[13] - b[13];
+  out[14] = a[14] - b[14];
+  out[15] = a[15] - b[15];
+  return out;
+}
+function multiplyScalar(out, a, b) {
+  out[0] = a[0] * b;
+  out[1] = a[1] * b;
+  out[2] = a[2] * b;
+  out[3] = a[3] * b;
+  out[4] = a[4] * b;
+  out[5] = a[5] * b;
+  out[6] = a[6] * b;
+  out[7] = a[7] * b;
+  out[8] = a[8] * b;
+  out[9] = a[9] * b;
+  out[10] = a[10] * b;
+  out[11] = a[11] * b;
+  out[12] = a[12] * b;
+  out[13] = a[13] * b;
+  out[14] = a[14] * b;
+  out[15] = a[15] * b;
+  return out;
+}
+function multiplyScalarAndAdd(out, a, b, scale3) {
+  out[0] = a[0] + b[0] * scale3;
+  out[1] = a[1] + b[1] * scale3;
+  out[2] = a[2] + b[2] * scale3;
+  out[3] = a[3] + b[3] * scale3;
+  out[4] = a[4] + b[4] * scale3;
+  out[5] = a[5] + b[5] * scale3;
+  out[6] = a[6] + b[6] * scale3;
+  out[7] = a[7] + b[7] * scale3;
+  out[8] = a[8] + b[8] * scale3;
+  out[9] = a[9] + b[9] * scale3;
+  out[10] = a[10] + b[10] * scale3;
+  out[11] = a[11] + b[11] * scale3;
+  out[12] = a[12] + b[12] * scale3;
+  out[13] = a[13] + b[13] * scale3;
+  out[14] = a[14] + b[14] * scale3;
+  out[15] = a[15] + b[15] * scale3;
+  return out;
+}
+function exactEquals(a, b) {
+  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3] && a[4] === b[4] && a[5] === b[5] && a[6] === b[6] && a[7] === b[7] && a[8] === b[8] && a[9] === b[9] && a[10] === b[10] && a[11] === b[11] && a[12] === b[12] && a[13] === b[13] && a[14] === b[14] && a[15] === b[15];
+}
+function equals(a, b) {
+  var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3];
+  var a4 = a[4], a5 = a[5], a6 = a[6], a7 = a[7];
+  var a8 = a[8], a9 = a[9], a10 = a[10], a11 = a[11];
+  var a12 = a[12], a13 = a[13], a14 = a[14], a15 = a[15];
+  var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+  var b4 = b[4], b5 = b[5], b6 = b[6], b7 = b[7];
+  var b8 = b[8], b9 = b[9], b10 = b[10], b11 = b[11];
+  var b12 = b[12], b13 = b[13], b14 = b[14], b15 = b[15];
+  return Math.abs(a0 - b0) <= EPSILON * Math.max(1, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= EPSILON * Math.max(1, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= EPSILON * Math.max(1, Math.abs(a3), Math.abs(b3)) && Math.abs(a4 - b4) <= EPSILON * Math.max(1, Math.abs(a4), Math.abs(b4)) && Math.abs(a5 - b5) <= EPSILON * Math.max(1, Math.abs(a5), Math.abs(b5)) && Math.abs(a6 - b6) <= EPSILON * Math.max(1, Math.abs(a6), Math.abs(b6)) && Math.abs(a7 - b7) <= EPSILON * Math.max(1, Math.abs(a7), Math.abs(b7)) && Math.abs(a8 - b8) <= EPSILON * Math.max(1, Math.abs(a8), Math.abs(b8)) && Math.abs(a9 - b9) <= EPSILON * Math.max(1, Math.abs(a9), Math.abs(b9)) && Math.abs(a10 - b10) <= EPSILON * Math.max(1, Math.abs(a10), Math.abs(b10)) && Math.abs(a11 - b11) <= EPSILON * Math.max(1, Math.abs(a11), Math.abs(b11)) && Math.abs(a12 - b12) <= EPSILON * Math.max(1, Math.abs(a12), Math.abs(b12)) && Math.abs(a13 - b13) <= EPSILON * Math.max(1, Math.abs(a13), Math.abs(b13)) && Math.abs(a14 - b14) <= EPSILON * Math.max(1, Math.abs(a14), Math.abs(b14)) && Math.abs(a15 - b15) <= EPSILON * Math.max(1, Math.abs(a15), Math.abs(b15));
+}
+var mul = multiply;
+var sub = subtract;
+
+// node_modules/gl-matrix/esm/vec3.js
+var vec3_exports = {};
+__export(vec3_exports, {
+  add: () => add2,
+  angle: () => angle,
+  bezier: () => bezier,
+  ceil: () => ceil,
+  clone: () => clone2,
+  copy: () => copy2,
+  create: () => create2,
+  cross: () => cross,
+  dist: () => dist,
+  distance: () => distance,
+  div: () => div,
+  divide: () => divide,
+  dot: () => dot,
+  equals: () => equals2,
+  exactEquals: () => exactEquals2,
+  floor: () => floor,
+  forEach: () => forEach,
+  fromValues: () => fromValues2,
+  hermite: () => hermite,
+  inverse: () => inverse,
+  len: () => len,
+  length: () => length,
+  lerp: () => lerp,
+  max: () => max,
+  min: () => min,
+  mul: () => mul2,
+  multiply: () => multiply2,
+  negate: () => negate,
+  normalize: () => normalize,
+  random: () => random,
+  rotateX: () => rotateX2,
+  rotateY: () => rotateY2,
+  rotateZ: () => rotateZ2,
+  round: () => round2,
+  scale: () => scale2,
+  scaleAndAdd: () => scaleAndAdd,
+  set: () => set2,
+  slerp: () => slerp,
+  sqrDist: () => sqrDist,
+  sqrLen: () => sqrLen,
+  squaredDistance: () => squaredDistance,
+  squaredLength: () => squaredLength,
+  str: () => str2,
+  sub: () => sub2,
+  subtract: () => subtract2,
+  transformMat3: () => transformMat3,
+  transformMat4: () => transformMat4,
+  transformQuat: () => transformQuat,
+  zero: () => zero
+});
+function create2() {
+  var out = new ARRAY_TYPE(3);
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+  }
+  return out;
+}
+function clone2(a) {
+  var out = new ARRAY_TYPE(3);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  return out;
+}
+function length(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  return Math.sqrt(x * x + y * y + z * z);
+}
+function fromValues2(x, y, z) {
+  var out = new ARRAY_TYPE(3);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  return out;
+}
+function copy2(out, a) {
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  return out;
+}
+function set2(out, x, y, z) {
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  return out;
+}
+function add2(out, a, b) {
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  out[2] = a[2] + b[2];
+  return out;
+}
+function subtract2(out, a, b) {
+  out[0] = a[0] - b[0];
+  out[1] = a[1] - b[1];
+  out[2] = a[2] - b[2];
+  return out;
+}
+function multiply2(out, a, b) {
+  out[0] = a[0] * b[0];
+  out[1] = a[1] * b[1];
+  out[2] = a[2] * b[2];
+  return out;
+}
+function divide(out, a, b) {
+  out[0] = a[0] / b[0];
+  out[1] = a[1] / b[1];
+  out[2] = a[2] / b[2];
+  return out;
+}
+function ceil(out, a) {
+  out[0] = Math.ceil(a[0]);
+  out[1] = Math.ceil(a[1]);
+  out[2] = Math.ceil(a[2]);
+  return out;
+}
+function floor(out, a) {
+  out[0] = Math.floor(a[0]);
+  out[1] = Math.floor(a[1]);
+  out[2] = Math.floor(a[2]);
+  return out;
+}
+function min(out, a, b) {
+  out[0] = Math.min(a[0], b[0]);
+  out[1] = Math.min(a[1], b[1]);
+  out[2] = Math.min(a[2], b[2]);
+  return out;
+}
+function max(out, a, b) {
+  out[0] = Math.max(a[0], b[0]);
+  out[1] = Math.max(a[1], b[1]);
+  out[2] = Math.max(a[2], b[2]);
+  return out;
+}
+function round2(out, a) {
+  out[0] = round(a[0]);
+  out[1] = round(a[1]);
+  out[2] = round(a[2]);
+  return out;
+}
+function scale2(out, a, b) {
+  out[0] = a[0] * b;
+  out[1] = a[1] * b;
+  out[2] = a[2] * b;
+  return out;
+}
+function scaleAndAdd(out, a, b, scale3) {
+  out[0] = a[0] + b[0] * scale3;
+  out[1] = a[1] + b[1] * scale3;
+  out[2] = a[2] + b[2] * scale3;
+  return out;
+}
+function distance(a, b) {
+  var x = b[0] - a[0];
+  var y = b[1] - a[1];
+  var z = b[2] - a[2];
+  return Math.sqrt(x * x + y * y + z * z);
+}
+function squaredDistance(a, b) {
+  var x = b[0] - a[0];
+  var y = b[1] - a[1];
+  var z = b[2] - a[2];
+  return x * x + y * y + z * z;
+}
+function squaredLength(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  return x * x + y * y + z * z;
+}
+function negate(out, a) {
+  out[0] = -a[0];
+  out[1] = -a[1];
+  out[2] = -a[2];
+  return out;
+}
+function inverse(out, a) {
+  out[0] = 1 / a[0];
+  out[1] = 1 / a[1];
+  out[2] = 1 / a[2];
+  return out;
+}
+function normalize(out, a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var len2 = x * x + y * y + z * z;
+  if (len2 > 0) {
+    len2 = 1 / Math.sqrt(len2);
+  }
+  out[0] = a[0] * len2;
+  out[1] = a[1] * len2;
+  out[2] = a[2] * len2;
+  return out;
+}
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+function cross(out, a, b) {
+  var ax = a[0], ay = a[1], az = a[2];
+  var bx = b[0], by = b[1], bz = b[2];
+  out[0] = ay * bz - az * by;
+  out[1] = az * bx - ax * bz;
+  out[2] = ax * by - ay * bx;
+  return out;
+}
+function lerp(out, a, b, t) {
+  var ax = a[0];
+  var ay = a[1];
+  var az = a[2];
+  out[0] = ax + t * (b[0] - ax);
+  out[1] = ay + t * (b[1] - ay);
+  out[2] = az + t * (b[2] - az);
+  return out;
+}
+function slerp(out, a, b, t) {
+  var angle2 = Math.acos(Math.min(Math.max(dot(a, b), -1), 1));
+  var sinTotal = Math.sin(angle2);
+  var ratioA = Math.sin((1 - t) * angle2) / sinTotal;
+  var ratioB = Math.sin(t * angle2) / sinTotal;
+  out[0] = ratioA * a[0] + ratioB * b[0];
+  out[1] = ratioA * a[1] + ratioB * b[1];
+  out[2] = ratioA * a[2] + ratioB * b[2];
+  return out;
+}
+function hermite(out, a, b, c, d, t) {
+  var factorTimes2 = t * t;
+  var factor1 = factorTimes2 * (2 * t - 3) + 1;
+  var factor2 = factorTimes2 * (t - 2) + t;
+  var factor3 = factorTimes2 * (t - 1);
+  var factor4 = factorTimes2 * (3 - 2 * t);
+  out[0] = a[0] * factor1 + b[0] * factor2 + c[0] * factor3 + d[0] * factor4;
+  out[1] = a[1] * factor1 + b[1] * factor2 + c[1] * factor3 + d[1] * factor4;
+  out[2] = a[2] * factor1 + b[2] * factor2 + c[2] * factor3 + d[2] * factor4;
+  return out;
+}
+function bezier(out, a, b, c, d, t) {
+  var inverseFactor = 1 - t;
+  var inverseFactorTimesTwo = inverseFactor * inverseFactor;
+  var factorTimes2 = t * t;
+  var factor1 = inverseFactorTimesTwo * inverseFactor;
+  var factor2 = 3 * t * inverseFactorTimesTwo;
+  var factor3 = 3 * factorTimes2 * inverseFactor;
+  var factor4 = factorTimes2 * t;
+  out[0] = a[0] * factor1 + b[0] * factor2 + c[0] * factor3 + d[0] * factor4;
+  out[1] = a[1] * factor1 + b[1] * factor2 + c[1] * factor3 + d[1] * factor4;
+  out[2] = a[2] * factor1 + b[2] * factor2 + c[2] * factor3 + d[2] * factor4;
+  return out;
+}
+function random(out, scale3) {
+  scale3 = scale3 === void 0 ? 1 : scale3;
+  var r = RANDOM() * 2 * Math.PI;
+  var z = RANDOM() * 2 - 1;
+  var zScale = Math.sqrt(1 - z * z) * scale3;
+  out[0] = Math.cos(r) * zScale;
+  out[1] = Math.sin(r) * zScale;
+  out[2] = z * scale3;
+  return out;
+}
+function transformMat4(out, a, m) {
+  var x = a[0], y = a[1], z = a[2];
+  var w = m[3] * x + m[7] * y + m[11] * z + m[15];
+  w = w || 1;
+  out[0] = (m[0] * x + m[4] * y + m[8] * z + m[12]) / w;
+  out[1] = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w;
+  out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w;
+  return out;
+}
+function transformMat3(out, a, m) {
+  var x = a[0], y = a[1], z = a[2];
+  out[0] = x * m[0] + y * m[3] + z * m[6];
+  out[1] = x * m[1] + y * m[4] + z * m[7];
+  out[2] = x * m[2] + y * m[5] + z * m[8];
+  return out;
+}
+function transformQuat(out, a, q) {
+  var qx = q[0], qy = q[1], qz = q[2], qw = q[3];
+  var vx = a[0], vy = a[1], vz = a[2];
+  var tx = qy * vz - qz * vy;
+  var ty = qz * vx - qx * vz;
+  var tz = qx * vy - qy * vx;
+  tx = tx + tx;
+  ty = ty + ty;
+  tz = tz + tz;
+  out[0] = vx + qw * tx + qy * tz - qz * ty;
+  out[1] = vy + qw * ty + qz * tx - qx * tz;
+  out[2] = vz + qw * tz + qx * ty - qy * tx;
+  return out;
+}
+function rotateX2(out, a, b, rad) {
+  var p = [], r = [];
+  p[0] = a[0] - b[0];
+  p[1] = a[1] - b[1];
+  p[2] = a[2] - b[2];
+  r[0] = p[0];
+  r[1] = p[1] * Math.cos(rad) - p[2] * Math.sin(rad);
+  r[2] = p[1] * Math.sin(rad) + p[2] * Math.cos(rad);
+  out[0] = r[0] + b[0];
+  out[1] = r[1] + b[1];
+  out[2] = r[2] + b[2];
+  return out;
+}
+function rotateY2(out, a, b, rad) {
+  var p = [], r = [];
+  p[0] = a[0] - b[0];
+  p[1] = a[1] - b[1];
+  p[2] = a[2] - b[2];
+  r[0] = p[2] * Math.sin(rad) + p[0] * Math.cos(rad);
+  r[1] = p[1];
+  r[2] = p[2] * Math.cos(rad) - p[0] * Math.sin(rad);
+  out[0] = r[0] + b[0];
+  out[1] = r[1] + b[1];
+  out[2] = r[2] + b[2];
+  return out;
+}
+function rotateZ2(out, a, b, rad) {
+  var p = [], r = [];
+  p[0] = a[0] - b[0];
+  p[1] = a[1] - b[1];
+  p[2] = a[2] - b[2];
+  r[0] = p[0] * Math.cos(rad) - p[1] * Math.sin(rad);
+  r[1] = p[0] * Math.sin(rad) + p[1] * Math.cos(rad);
+  r[2] = p[2];
+  out[0] = r[0] + b[0];
+  out[1] = r[1] + b[1];
+  out[2] = r[2] + b[2];
+  return out;
+}
+function angle(a, b) {
+  var ax = a[0], ay = a[1], az = a[2], bx = b[0], by = b[1], bz = b[2], mag = Math.sqrt((ax * ax + ay * ay + az * az) * (bx * bx + by * by + bz * bz)), cosine = mag && dot(a, b) / mag;
+  return Math.acos(Math.min(Math.max(cosine, -1), 1));
+}
+function zero(out) {
+  out[0] = 0;
+  out[1] = 0;
+  out[2] = 0;
+  return out;
+}
+function str2(a) {
+  return "vec3(" + a[0] + ", " + a[1] + ", " + a[2] + ")";
+}
+function exactEquals2(a, b) {
+  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+}
+function equals2(a, b) {
+  var a0 = a[0], a1 = a[1], a2 = a[2];
+  var b0 = b[0], b1 = b[1], b2 = b[2];
+  return Math.abs(a0 - b0) <= EPSILON * Math.max(1, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= EPSILON * Math.max(1, Math.abs(a2), Math.abs(b2));
+}
+var sub2 = subtract2;
+var mul2 = multiply2;
+var div = divide;
+var dist = distance;
+var sqrDist = squaredDistance;
+var len = length;
+var sqrLen = squaredLength;
+var forEach = (function() {
+  var vec = create2();
+  return function(a, stride, offset, count, fn, arg) {
+    var i, l;
+    if (!stride) {
+      stride = 3;
+    }
+    if (!offset) {
+      offset = 0;
+    }
+    if (count) {
+      l = Math.min(count * stride + offset, a.length);
+    } else {
+      l = a.length;
+    }
+    for (i = offset; i < l; i += stride) {
+      vec[0] = a[i];
+      vec[1] = a[i + 1];
+      vec[2] = a[i + 2];
+      fn(vec, vec, arg);
+      a[i] = vec[0];
+      a[i + 1] = vec[1];
+      a[i + 2] = vec[2];
+    }
+    return a;
+  };
+})();
+
+// src/raytracing/index.ts
+function throw_error(message) {
+  alert(message);
+  throw new Error(message);
+}
+var canvas = document.getElementById("canvas");
+var gl = canvas.getContext("webgl2");
+if (!gl) throw_error("webgl2 is not supported");
+if (!gl.getExtension("EXT_color_buffer_float")) throw_error("EXT_color_buffer_float is not supported");
+var dpr = window.devicePixelRatio;
+var width = Math.round(canvas.clientWidth * dpr);
+var height = Math.round(canvas.clientHeight * dpr);
+canvas.width = width;
+canvas.height = height;
+gl.viewport(0, 0, width, height);
+function compile_shader(gl2, type, source) {
+  const shader = gl2.createShader(type);
+  gl2.shaderSource(shader, source);
+  gl2.compileShader(shader);
+  const success = gl2.getShaderParameter(shader, gl2.COMPILE_STATUS);
+  if (success) return shader;
+  const log = gl2.getShaderInfoLog(shader);
+  gl2.deleteShader(shader);
+  throw_error(`failed to compile shader:
+${log}`);
+}
+function create_program(gl2, vertex_shader2, fragment_shader2) {
+  const program2 = gl2.createProgram();
+  gl2.attachShader(program2, vertex_shader2);
+  gl2.attachShader(program2, fragment_shader2);
+  gl2.linkProgram(program2);
+  const success = gl2.getProgramParameter(program2, gl2.LINK_STATUS);
+  if (success) return program2;
+  const log = gl2.getProgramInfoLog(program2);
+  gl2.deleteProgram(program2);
+  throw_error(`failed to link program:
+${log}`);
+}
+function bind_buffer_to_attribute(gl2, attribute_location, buffer_data, vao2) {
+  if (vao2 !== void 0) gl2.bindVertexArray(vao2);
+  gl2.bindBuffer(gl2.ARRAY_BUFFER, gl2.createBuffer());
+  gl2.bufferData(gl2.ARRAY_BUFFER, buffer_data.data, gl2.STATIC_DRAW);
+  gl2.enableVertexAttribArray(attribute_location);
+  gl2.vertexAttribPointer(attribute_location, buffer_data.size, buffer_data.type, buffer_data.normalized ?? false, buffer_data.stride ?? 0, buffer_data.offset ?? 0);
+  gl2.enableVertexAttribArray(attribute_location);
+}
+var vertex_shader = compile_shader(gl, gl.VERTEX_SHADER, vertex_default);
+var fragment_shader = compile_shader(gl, gl.FRAGMENT_SHADER, fragment_default);
+var program = create_program(gl, vertex_shader, fragment_shader);
+gl.useProgram(program);
+var locations = {
+  attributes: {
+    "a_position": gl.getAttribLocation(program, "a_position")
+  },
+  uniforms: {
+    "u_invViewMatrix": gl.getUniformLocation(program, "u_invViewMatrix"),
+    "u_screenSize": gl.getUniformLocation(program, "u_screenSize"),
+    "u_frame": gl.getUniformLocation(program, "u_frame"),
+    "u_lastFrame": gl.getUniformLocation(program, "u_lastFrame"),
+    "u_render": gl.getUniformLocation(program, "u_render"),
+    "u_resolution": gl.getUniformLocation(program, "u_resolution")
+  }
+};
+gl.uniform2f(locations.uniforms["u_screenSize"], 0.5 * width / height, 0.5);
+gl.uniform2f(locations.uniforms["u_resolution"], width, height);
+var vao = gl.createVertexArray();
+gl.bindVertexArray(vao);
+bind_buffer_to_attribute(gl, locations.attributes["a_position"], {
+  data: new Float32Array([-1, -1, -1, 1, 1, -1, 1, 1, 1, -1, -1, 1]),
+  size: 2,
+  type: gl.FLOAT
+});
+var tmp = gl.createTexture();
+gl.activeTexture(gl.TEXTURE1);
+gl.bindTexture(gl.TEXTURE_2D, tmp);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+var last_frame = gl.createTexture();
+gl.activeTexture(gl.TEXTURE0);
+gl.bindTexture(gl.TEXTURE_2D, last_frame);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null);
+var framebuffer = gl.createFramebuffer();
+gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, last_frame, 0);
+var camera = {
+  pos: vec3_exports.fromValues(0, 0, 0),
+  rot: vec3_exports.fromValues(0, 0, 0)
+};
+var pressed_keys = /* @__PURE__ */ new Set();
+var frame = 0;
+function render() {
+  console.log(pressed_keys);
+  for (let key of pressed_keys) {
+    let movement_dir = vec3_exports.fromValues(Math.sin(camera.rot[1]), 0, Math.cos(camera.rot[1]));
+    let side_dir = vec3_exports.cross(vec3_exports.create(), vec3_exports.fromValues(0, 1, 0), movement_dir);
+    let moved = true;
+    if (key === "w") {
+      vec3_exports.scaleAndAdd(camera.pos, camera.pos, movement_dir, 0.05);
+    } else if (key === "s") {
+      vec3_exports.scaleAndAdd(camera.pos, camera.pos, movement_dir, -0.05);
+    } else if (key === "a") {
+      vec3_exports.scaleAndAdd(camera.pos, camera.pos, side_dir, -0.05);
+    } else if (key === "d") {
+      vec3_exports.scaleAndAdd(camera.pos, camera.pos, side_dir, 0.05);
+    } else if (key === " ") {
+      camera.pos[1] += 0.05;
+    } else if (key === "Shift") {
+      camera.pos[1] -= 0.05;
+    } else if (key === "q") {
+      camera.rot[2] += 0.02;
+    } else if (key === "e") {
+      camera.rot[2] -= 0.02;
+    } else {
+      moved = false;
+    }
+    if (moved) frame = 0;
+  }
+  gl.uniform1i(locations.uniforms["u_frame"], frame++);
+  let inv_view_matrix = mat4_exports.create();
+  mat4_exports.translate(inv_view_matrix, inv_view_matrix, camera.pos);
+  mat4_exports.rotateZ(inv_view_matrix, inv_view_matrix, camera.rot[2]);
+  mat4_exports.rotateY(inv_view_matrix, inv_view_matrix, camera.rot[1]);
+  mat4_exports.rotateX(inv_view_matrix, inv_view_matrix, camera.rot[0]);
+  gl.uniformMatrix4fv(locations.uniforms["u_invViewMatrix"], false, inv_view_matrix);
+  gl.uniform1i(locations.uniforms["u_lastFrame"], 1);
+  gl.uniform1i(locations.uniforms["u_render"], 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  gl.bindTexture(gl.TEXTURE_2D, tmp);
+  gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 0, 0, width, height, 0);
+  gl.uniform1i(locations.uniforms["u_lastFrame"], 0);
+  gl.uniform1i(locations.uniforms["u_render"], 1);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+window.addEventListener("keydown", (event) => pressed_keys.add(event.key));
+window.addEventListener("keyup", (event) => pressed_keys.delete(event.key));
+canvas.addEventListener("click", () => canvas.requestPointerLock());
+window.addEventListener("mousemove", (event) => {
+  if (document.pointerLockElement !== canvas) return;
+  camera.rot[1] += event.movementX * 2e-3;
+  camera.rot[0] += event.movementY * 2e-3;
+  frame = 0;
+});
+//# sourceMappingURL=index.js.map
