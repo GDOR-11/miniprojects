@@ -7,25 +7,45 @@
         <script type="module" src="./index.js"></script>
     </head>
     <body>
-        <form id="configuration-form" action="simulation.html">
-            <div class="option-panel">
-                <label class="option-title" for="num-pendulums-input">Number of pendulums</label>
-                <input class="option-input" type="number" id="num-pendulums-input" required min="1" step="1">
+        <form class="fullscreen container" id="configuration-form" action="simulation.html">
+            <div class="medium-margin container">
+                <label class="title" for="num-pendulums-input">Number of pendulums</label>
+                <input class="small-margin" type="number" id="num-pendulums-input" required min="1" step="1">
             </div>
-            <div class="option-panel">
-                <label class="option-title" for="time-step-input">Time step</label>
-                <label class="option-description" for="time-step-input">leave empty for dynamic time step</label>
-                <input class="option-input" type="number" id="time-step-input" min="0" step="any">
+            <div class="medium-margin container">
+                <label class="title" for="time-step-input">Time step</label>
+                <label class="small-text" for="time-step-input">leave empty for dynamic time step</label>
+                <input class="small-margin" type="number" id="time-step-input" min="0" step="any">
             </div>
-            <div class="option-panel">
-                <label class="option-title" for="substeps-input">Number of substeps</label>
-                <input class="option-input" type="number" id="substeps-input" required min="1" step="1" value="1">
+            <div class="medium-margin container">
+                <label class="title" for="substeps-input">Number of substeps</label>
+                <input class="small-margin" type="number" id="substeps-input" required min="1" step="1" value="1">
             </div>
-            <div class="option-panel">
-                <label class="option-title" for="gravity-input">Gravity</label>
-                <input class="option-input" type="number" id="gravity-input" required value="5" step="any">
+            <div class="medium-margin container">
+                <label class="title" for="gravity-input">Gravity</label>
+                <input class="small-margin" type="number" id="gravity-input" required value="5" step="any">
             </div>
-            <input type="submit" id="start-button" value="START">
+            <div class="medium-margin container">
+                <div>
+                    <label class="title" for="energy-input">Force constant energy?</label>
+                    <input class="large-checkbox" type="checkbox" id="energy-input" value="on">
+                </div>
+            </div>
+            <details class="big-margin container">
+                <summary class="title">Initial conditions</summary>
+                <div class="container">
+                    <p class="small-text" style="display: inline-block;">comma-separated list of initial angles (in degrees) and angular velocities (in degrees/s)</p>
+                    <div>
+                        <label for="angles-input" style="font-size: 150%;">Initial angles:</label>
+                        <input class="small-margin" type="text" id="angles-input">
+                    </div>
+                    <div>
+                        <label for="angular-velocities-input" style="font-size: 150%;">Initial angular velocities:</label>
+                        <input class="small-margin" type="text" id="angular-velocities-input">
+                    </div>
+                </div>
+            </details>
+            <input class="big-text big-margin" type="submit" value="START">
         </form>
     </body>
 </html>

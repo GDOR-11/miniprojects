@@ -28,8 +28,12 @@ const N = Number(window.localStorage.getItem("N") ?? 2);
 const dt = Number(window.localStorage.getItem("dt"));
 const substeps = Number(window.localStorage.getItem("substeps") ?? 1);
 const g = Number(window.localStorage.getItem("g") ?? 5);
+const const_energy = window.localStorage.getItem("const_energy") == "true";
 
-let y: number[] = new Array(2 * N).fill(0).map((_, i) => i < N ? Math.PI / 2 : 0);
+let y: number[] = ((window.localStorage.getItem("angles") || undefined)?.split(",").map(s => Number(s)) ?? new Array(N).fill(Math.PI / 2)).concat(
+    (window.localStorage.getItem("velocities") || undefined)?.split(",").map(s => Number(s)) ?? new Array(N).fill(0)
+);
+console.log(y);
 const L: number[] = new Array(N).fill(1);
 const m: number[] = new Array(N).fill(1);
 
@@ -92,6 +96,24 @@ function redraw_trace() {
 }
 
 space.addListener(redraw_trace);
+
+/** returns \[kinetic energy, potential energy\] */
+function energy(): [number, number] {
+    // let h = 0;
+    let v = vec2.create();
+    let K = 0;
+    let V = 0;
+    for (let i = 0; i < N; i++) {
+        vec2.scaleAndAdd(v, v, vec2.fromValues(Math.cos(y[i]), Math.sin(y[i])), L[i] * y[i + N]);
+        // h -= L[i] * Math.cos(y[i]);
+        K += 0.5 * m[i] * vec2.sqrLen(v);
+        // V += m[i] * h;
+        V -= M[i] * L[i] * g * Math.cos(y[i]);
+    }
+    return [K, V];
+}
+
+const initial_energy = energy().reduce((a, b) => a + b);
 
 function render() {
     document.body.style.backgroundColor = appearance.colors.background;
@@ -184,6 +206,14 @@ function step(dt: number) {
 
 let last_frame = 0;
 function tick(timestamp: number) {
+    if (const_energy) {
+        let [K, V] = energy();
+        let scale = Math.min(Math.max(Math.sqrt((initial_energy - V) / K), 0.99), 1.01) || 1;
+        for (let i = 0; i < N; i++) {
+            y[i + N] *= scale;
+        }
+    }
+
     let delta_t = isNaN(dt) ? Math.min((timestamp - last_frame) / 1000, 0.1) : dt;
     for (let i = 0; i < substeps; i++) {
         step(delta_t / substeps);
