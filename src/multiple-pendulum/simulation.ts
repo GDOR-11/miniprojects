@@ -33,7 +33,6 @@ const const_energy = window.localStorage.getItem("const_energy") == "true";
 let y: number[] = ((window.localStorage.getItem("angles") || undefined)?.split(",").map(s => Number(s)) ?? new Array(N).fill(Math.PI / 2)).concat(
     (window.localStorage.getItem("velocities") || undefined)?.split(",").map(s => Number(s)) ?? new Array(N).fill(0)
 );
-console.log(y);
 const L: number[] = new Array(N).fill(1);
 const m: number[] = new Array(N).fill(1);
 
